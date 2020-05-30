@@ -46,13 +46,13 @@ class Profile extends React.Component {
 			const menu = (
 				<Menu>
                     <Menu.Item>
-                        <Link to="/edit-profile">
+                        <Link to={'/players/' + this.state.profileData.id}>
                             Signed in as<br /><b>{profileData.name}</b>
                         </Link>
                     </Menu.Item> 
                     <Menu.Divider />
 					<Menu.Item>
-						<Link to="/edit-profile">Edit Profile</Link>
+						<Link to={'/players/edit/' + this.state.profileData.id}>Edit Profile</Link>
 					</Menu.Item>
 					<Menu.Item>
 						<a href="/accounts/logout">Sign Out</a>
