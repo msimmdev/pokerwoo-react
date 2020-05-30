@@ -1,14 +1,13 @@
 import React from "react";
-import {ReactComponent as Logo} from "./pokerwoo.svg";
-import "./App.less";
+import { BrowserRouter as Router } from "react-router-dom";
 import { Layout, Row, Col } from "antd";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import Games from "./pages/Games";
-import Dashboard from "./pages/Dashboard";
-import Players from "./pages/Players";
 import NavMenu from "./surround/NavMenu";
 import Profile from "./surround/Profile";
+import Routes from "./Routes";
 
+import {ReactComponent as Logo} from "./pokerwoo.svg";
+
+import "./App.less";
 import './fonts/saarland.ttf'
 
 const { Header, Content, Footer } = Layout;
@@ -32,11 +31,7 @@ function App() {
 						</Row>
 					</Header>
 					<Content style={{ padding: '0 50px' }}>
-						<Switch>
-							<Route path="/players" component={Players} />
-							<Route path="/games" component={Games} />
-							<Route path="/" component={Dashboard} />
-						</Switch>
+						<Routes />
 					</Content>
 					<Footer style={{ textAlign: "center" }}>
 						Copyright &copy; 2020 Michael Simm. All Rights Reserverd
