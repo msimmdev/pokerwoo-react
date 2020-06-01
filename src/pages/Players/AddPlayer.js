@@ -1,8 +1,8 @@
 import React from "react";
 import PageSurround from "../../components/PageSurround";
 import PlayerForm from "../../components/PlayerForm";
-import Cookies from "js-cookie";
 import { message } from "antd";
+import RestApi from "../../utils/RestApi";
 
 class AddPlayer extends React.Component {
 	constructor(props) {
@@ -16,26 +16,27 @@ class AddPlayer extends React.Component {
 
 	onSubmit(values) {
 		this.setState({ isSaving: true });
-		console.log(values);
-		fetch(process.env.REACT_APP_BASE_API_URL + "/players/players/", {
-			credentials: "include",
-			method: "POST",
-			body: JSON.stringify(values),
-			headers: {
-				Accept: "application/json",
-				"Content-Type": "application/json",
-				"X-CSRFToken": Cookies.get("csrftoken"),
+		new RestApi('/players/players/').create({
+			data: values,
+			onRes: (res) => {
+				if (res.status !== 201) {
+					return Promise.reject(new Error('Unable to create player.'));
+				}
+				return res;
 			},
-		}).then((res) => {
-			this.setState({
-				isSaving: false,
-			});
-			if (res.status === 201) {
-                this.props.history.push('/players');
-                message.success("Player has been added");
-			} else {
-				message.error("There was a problem adding the player");
-			}
+			onParse: () => {
+				this.setState({
+					isSaving: false,
+				});
+				this.props.history.push("/players");
+				message.success("Player has been created");
+			},
+			onError: (error) => {
+				this.setState({
+					isSaving: false,
+				});
+				message.error(error.message);
+			},
 		});
 	}
 

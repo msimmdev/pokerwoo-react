@@ -1,6 +1,7 @@
 import React from "react";
 import { Avatar, Menu, Dropdown, Spin } from "antd";
 import { Link } from "react-router-dom";
+import RestApi from "../utils/RestApi";
 
 class Profile extends React.Component {
 	constructor(props) {
@@ -13,27 +14,26 @@ class Profile extends React.Component {
 	}
 
 	componentDidMount() {
-		fetch(process.env.REACT_APP_BASE_API_URL + "/players/active_player/", {
-            credentials: "include",
-            headers: {
-                Accept: 'application/json'
-            }
-		})
-			.then((res) => res.json())
-			.then(
-				(result) => {
-					this.setState({
-						isLoaded: true,
-						profileData: result,
-					});
-				},
-				(error) => {
-					this.setState({
-						isLoaded: true,
-						error,
-					});
+		new RestApi("/players/active_player/").retrieve({
+			onRes: (res) => {
+				if (res.status !== 200) {
+					return Promise.reject(new Error("Unable to retrieve player."));
 				}
-			);
+				return res;
+			},
+			onParse: (result) => {
+				this.setState({
+					isLoaded: true,
+					playerData: result,
+				});
+			},
+			onError: (error) => {
+				this.setState({
+					isLoaded: true,
+					error,
+				});
+			},
+		});
 	}
 
 	render() {
@@ -45,14 +45,18 @@ class Profile extends React.Component {
 		} else {
 			const menu = (
 				<Menu>
-                    <Menu.Item>
-                        <Link to={'/players/' + this.state.profileData.id}>
-                            Signed in as<br /><b>{profileData.name}</b>
-                        </Link>
-                    </Menu.Item> 
-                    <Menu.Divider />
 					<Menu.Item>
-						<Link to={'/players/edit/' + this.state.profileData.id}>Edit Profile</Link>
+						<Link to={"/players/" + this.state.profileData.id}>
+							Signed in as
+							<br />
+							<b>{profileData.name}</b>
+						</Link>
+					</Menu.Item>
+					<Menu.Divider />
+					<Menu.Item>
+						<Link to={"/players/edit/" + this.state.profileData.id}>
+							Edit Profile
+						</Link>
 					</Menu.Item>
 					<Menu.Item>
 						<a href="/accounts/logout">Sign Out</a>

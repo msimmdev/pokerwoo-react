@@ -1,8 +1,8 @@
 import React from "react";
 import { withRouter } from "react-router-dom";
 import PageSurround from "../../components/PageSurround";
-import Cookies from "js-cookie";
 import { Spin, Descriptions, Space, Avatar, Tag } from "antd";
+import RestApi from "../../utils/RestApi";
 
 class Profile extends React.Component {
 	constructor(props) {
@@ -15,28 +15,26 @@ class Profile extends React.Component {
 
 	componentDidMount() {
 		const id = this.props.match.params.playerid;
-		fetch(process.env.REACT_APP_BASE_API_URL + "/players/players/" + id + "/", {
-			credentials: "include",
-			headers: {
-				Accept: "application/json",
-				"X-CSRFToken": Cookies.get("csrftoken"),
-			},
-		})
-			.then((res) => res.json())
-			.then(
-				(result) => {
-					this.setState({
-						isLoaded: true,
-						playerData: result,
-					});
-				},
-				(error) => {
-					this.setState({
-						isLoaded: true,
-						error,
-					});
+		new RestApi('/players/players/' + id + '/').retrieve({
+			onRes: (res) => {
+				if (res.status !== 200) {
+					return Promise.reject(new Error('Unable to retrieve player.'));
 				}
-			);
+				return res;
+			},
+			onParse: (result) => {
+				this.setState({
+					isLoaded: true,
+					playerData: result,
+				});
+			},
+			onError: (error) => {
+				this.setState({
+					isLoaded: true,
+					error,
+				});
+			},
+		});
 	}
 
 	render() {
