@@ -2,14 +2,15 @@ import React from "react";
 import { withRouter } from "react-router-dom";
 import PageSurround from "../../components/PageSurround";
 import PlayerForm from "../../components/PlayerForm";
-import Cookies from "js-cookie";
 import { message, Spin } from "antd";
+import RestApi from "../../utils/RestApi";
 
 class EditPlayer extends React.Component {
 	constructor(props) {
 		super(props);
 		this.formRef = React.createRef();
 		this.onSubmit = this.onSubmit.bind(this);
+		this.id = props.match.params.playerid;
 		this.state = {
 			isLoaded: false,
 			playerData: {},
@@ -18,56 +19,51 @@ class EditPlayer extends React.Component {
 	}
 
 	componentDidMount() {
-		const id = this.props.match.params.playerid;
-		fetch(process.env.REACT_APP_BASE_API_URL + "/players/players/" + id + "/", {
-			credentials: "include",
-			headers: {
-				Accept: "application/json",
-				"X-CSRFToken": Cookies.get("csrftoken"),
-			},
-		})
-			.then((res) => res.json())
-			.then(
-				(result) => {
-                    if (result.avatar) {
-                        result.avatar = [{ uid: 1, url: result.avatar,  }];
-                    }
-					this.setState({
-						isLoaded: true,
-						playerData: result,
-					});
-				},
-				(error) => {
-					this.setState({
-						isLoaded: true,
-						error,
-					});
+		new RestApi('/players/players/' + this.id + '/').retrieve({
+			onRes: (res) => {
+				if (res.status !== 200) {
+					return Promise.reject(new Error('Unable to retrieve player.'));
 				}
-			);
+				return res;
+			},
+			onParse: (result) => {
+				this.setState({
+					isLoaded: true,
+					playerData: result,
+				});
+			},
+			onError: (error) => {
+				this.setState({
+					isLoaded: true,
+					error,
+				});
+			},
+		});
 	}
 
 	onSubmit(values) {
 		this.setState({ isSaving: true });
-		console.log(values);
-		fetch(process.env.REACT_APP_BASE_API_URL + "/players/players/", {
-			credentials: "include",
-			method: "POST",
-			body: JSON.stringify(values),
-			headers: {
-				Accept: "application/json",
-				"Content-Type": "application/json",
-				"X-CSRFToken": Cookies.get("csrftoken"),
+		new RestApi('/players/players/' + this.id + '/').update({
+			data: values,
+			onRes: (res) => {
+				if (res.status !== 200) {
+					return Promise.reject(new Error('Unable to retrieve player.'));
+				}
+				return res;
 			},
-		}).then((res) => {
-			this.setState({
-				isSaving: false,
-			});
-			if (res.status === 201) {
+			onParse: () => {
+				this.setState({
+					isSaving: false,
+				});
 				this.props.history.push("/players");
 				message.success("Player has been updated");
-			} else {
-				message.error("There was a problem updating the player");
-			}
+			},
+			onError: (error) => {
+				this.setState({
+					isSaving: false,
+				});
+				message.error(error.message);
+			},
 		});
 	}
 
