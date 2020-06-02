@@ -1,10 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Alert, Space, Button, Popover, message } from "antd";
-import { EditOutlined } from "@ant-design/icons";
+import { Alert, Space, Button, Popover, message, Spin } from "antd";
 import PageSurround from "../../components/PageSurround";
 import DataTable from "../../components/DataTable";
 import DeleteButton from "../../components/DeleteButton";
+import PlayerName from"../../components/PlayerName";
 import RestApi from "../../utils/RestApi";
 import CurrencyFormat from "react-currency-format";
 import Moment from "react-moment";
@@ -31,7 +31,7 @@ class Games extends React.Component {
 			onParse: (result) => {
 				this.setState({
 					isLoaded: true,
-					games: result,
+					games: result.reverse(),
 				});
 			},
 			onError: (error) => {
@@ -68,10 +68,15 @@ class Games extends React.Component {
 				title: "Date",
 				dataIndex: "date_played",
 				render: (val) => <Moment format="DD/MM/YYYY">{val}</Moment>,
+				sorter: (a, b) => {
+					return a.date_played.localeCompare(b.date_played);
+				},
+				defaultSortOrder: 'descend',
 			},
 			{
 				title: "Number",
 				dataIndex: "game_number",
+				sorter: (a, b) => a.game_number - b.game_number,
 			},
 			{
 				title: "Stake",
@@ -94,13 +99,12 @@ class Games extends React.Component {
 				align: "center",
 				render: (record) => (
 					<Space>
-						<Link to={"/games/edit/" + record.id}>
-							<Button disabled={record.user} icon={<EditOutlined />}>
-								Edit
+						<Link to={"/games/detail/" + record.id}>
+							<Button>
+								View
 							</Button>
 						</Link>
 						<DeleteButton
-							disabled={record.user}
 							id={record.id}
 							resourse={"/poker/games/" + record.id + "/"}
 							onRes={this.removeGame}
@@ -204,7 +208,7 @@ class GameParticipantList extends React.Component  {
 
 	componentDidMount() {
         if (!this.state.participants.length) {
-            new RestApi("/poker/games/" + this.gameid + "/participants/").retrieve({
+            let participantPromise = new RestApi("/poker/games/" + this.gameid + "/participants/").retrieve({
                 onRes: (res) => {
                     if (res.status !== 200) {
                         return Promise.reject(
@@ -224,12 +228,14 @@ class GameParticipantList extends React.Component  {
                         error,
                     });
                 },
-            });
+			});
+			Promise.all([participantPromise]);
         }
 
         if (!this.state.error) {
+			let reqPromises = [];
             this.state.participants.forEach(element => {
-                new RestApi("/players/players/" + element.player_ref + "/").retrieve({
+                let reqPromise = new RestApi("/players/players/" + element.player_ref + "/").retrieve({
                     onRes: (res) => {
                         if (res.status !== 200) {
                             return Promise.reject(
@@ -239,8 +245,10 @@ class GameParticipantList extends React.Component  {
                         return res;
                     },
                     onParse: (result) => {
+						let pList = this.state.detailedParticipants;
+						pList.push({...element, ...result});
                         this.setState({
-                            detailedParticipants: this.state.detailedParticipants.push(...element, ...result)
+                            detailedParticipants: pList
                         });
                     },
                     onError: (error) => {
@@ -249,13 +257,32 @@ class GameParticipantList extends React.Component  {
                             error,
                         });
                     },
-                });
-            });
+				});
+				reqPromises.push(reqPromise);
+			});
+			Promise.all(reqPromises).then(() => {
+				this.setState({
+					isLoaded: true,
+				});
+			});
         }
     }
     
     render() {
-        return '1';
+		if (this.state.isLoaded) {
+			let displayList = [];
+			console.log(this.state);
+			this.state.detailedParticipants.forEach((player) => {
+				displayList.push(<PlayerName key={player.id} data={player}>{player.name}</PlayerName>);
+			});
+			return (
+				<Space direction='vertical'>
+					{displayList}
+				</Space>
+			);
+		} else {
+			return(<Spin />);
+		}
     }
 }
 
