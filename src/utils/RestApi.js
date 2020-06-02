@@ -14,10 +14,10 @@ class RestApi {
 	}
 
 	retrieve(props) {
-		fetch(this.url, this.fetchParams)
+		return fetch(this.url, this.fetchParams)
 			.then((res) => (props.onRes ? props.onRes(res) : res))
 			.then((res) => res.json())
-			.then((result) => ( props.onParse ? props.onParse(result) : result))
+			.then((result) => (props.onParse ? props.onParse(result) : result))
 			.catch((error) => props.onError(error));
 	}
 
@@ -26,10 +26,10 @@ class RestApi {
 			...this.fetchParams,
 			...{ method: "PATCH", body: JSON.stringify(props.data) },
 		};
-		fetch(this.url, params)
+		return fetch(this.url, params)
 			.then((res) => (props.onRes ? props.onRes(res) : res))
 			.then((res) => res.json())
-			.then((result) => ( props.onParse ? props.onParse(result) : result))
+			.then((result) => (props.onParse ? props.onParse(result) : result))
 			.catch((error) => props.onError(error));
 	}
 
@@ -38,10 +38,10 @@ class RestApi {
 			...this.fetchParams,
 			...{ method: "PUT", body: JSON.stringify(props.data) },
 		};
-		fetch(this.url, params)
+		return fetch(this.url, params)
 			.then((res) => (props.onRes ? props.onRes(res) : res))
 			.then((res) => res.json())
-			.then((result) => ( props.onParse ? props.onParse(result) : result))
+			.then((result) => (props.onParse ? props.onParse(result) : result))
 			.catch((error) => props.onError(error));
 	}
 
@@ -50,10 +50,10 @@ class RestApi {
 			...this.fetchParams,
 			...{ method: "POST", body: JSON.stringify(props.data) },
 		};
-		fetch(this.url, params)
+		return fetch(this.url, params)
 			.then((res) => (props.onRes ? props.onRes(res) : res))
 			.then((res) => res.json())
-			.then((result) => ( props.onParse ? props.onParse(result) : result))
+			.then((result) => (props.onParse ? props.onParse(result) : result))
 			.catch((error) => props.onError(error));
 	}
 
@@ -62,7 +62,7 @@ class RestApi {
 			...this.fetchParams,
 			...{ method: "DELETE" },
 		};
-		fetch(this.url, params)
+		return fetch(this.url, params)
 			.then((res) => (props.onRes ? props.onRes(res) : res))
 			.catch((error) => props.onError(error));
 	}

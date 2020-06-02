@@ -21,6 +21,7 @@ class GameForm extends React.Component {
 		this.state = {
 			error: null,
 			isLoaded: false,
+			designations: [],
 			players: [],
 		};
 	}
@@ -47,6 +48,7 @@ class GameForm extends React.Component {
 			},
 		});
 	}
+
 	render() {
 		if (this.state.error) {
 			return <Alert type="error" message={this.state.error.message} />;
@@ -68,9 +70,9 @@ class GameForm extends React.Component {
 									stake: 5,
 									place_two_multiplier: 0,
 									place_three_multiplier: 0,
-                                    tables: 1,
-                                    place_two_multiplier_custom: 3,
-                                    place_three_multiplier_custom: 3,
+									tables: "1",
+									place_two_multiplier_custom: 3,
+									place_three_multiplier_custom: 3,
 							  }
 					}
 					ref={this.props.formRef}
@@ -201,7 +203,20 @@ class GameForm extends React.Component {
 							},
 						]}
 					>
-						<InputNumber min={1} max={26} />
+						<Select onChange={this.props.changeTables}>
+							<Option key="1" value="1">
+								Single Table
+							</Option>
+							<Option key="2x1" value="2x1">
+								Two Tables into Final Table
+							</Option>
+							<Option key="3x1" value="3x1">
+								Three Tables into Final Table
+							</Option>
+							<Option key="4x2x1" value="4x2x1">
+								Four Tables into Two into Final Table
+							</Option>
+						</Select>
 					</Form.Item>
 					<Form.Item
 						noStyle
@@ -210,7 +225,7 @@ class GameForm extends React.Component {
 						}
 					>
 						{({ getFieldValue }) => {
-							if (getFieldValue("tables") === 1) {
+							if (getFieldValue("tables") === "1") {
 								return (
 									<Form.Item
 										label="Players"
@@ -255,18 +270,17 @@ class GameForm extends React.Component {
 						}
 					>
 						{({ getFieldValue }) => {
-							if (getFieldValue("tables") > 1) {
+							if (getFieldValue("tables") !== "1") {
 								let tables = [];
-								for (let i = 0; i < getFieldValue("tables"); i++) {
-									let designation = String.fromCharCode(65 + i);
+								this.props.designations.forEach((designation) => {
 									tables.push(
 										<TableFormSection
 											players={this.state.players}
-                                            designation={designation}
-                                            key={designation}
+											designation={designation}
+											key={designation}
 										/>
 									);
-								}
+								});
 								return <Row>{tables}</Row>;
 							}
 							return null;
@@ -295,14 +309,22 @@ class TableFormSection extends React.Component {
 			<Col xs={24} sm={24} md={12}>
 				<Divider>Table {this.props.designation}</Divider>
 				<Form.Item
-					label={"Table " + this.props.designation + " Players"}
+					label={
+						this.props.designation === "FINAL"
+							? "Final Table Players"
+							: "Table " + this.props.designation + " Players"
+					}
 					name={"participants_" + this.props.designation}
-					rules={[
-						{
-							required: true,
-							message: "You must choose some players for the table.",
-						},
-					]}
+					rules={
+						this.props.designation[0] === "1"
+							? [
+									{
+										required: true,
+										message: "You must choose some players for the table.",
+									},
+							  ]
+							: []
+					}
 				>
 					<Select
 						mode="multiple"
@@ -323,6 +345,22 @@ class TableFormSection extends React.Component {
 						})}
 					</Select>
 				</Form.Item>
+				{this.props.designation !== "FINAL" ? (
+					<Form.Item
+						label="# Players to Progress"
+						name={"progressing_" + this.props.designation}
+						rules={[
+							{
+								required: true,
+								message: "You must choose some players for the table.",
+							},
+						]}
+					>
+						<InputNumber min={1} />
+					</Form.Item>
+				) : (
+					""
+				)}
 			</Col>
 		);
 	}

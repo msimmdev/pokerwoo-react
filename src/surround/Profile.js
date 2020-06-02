@@ -24,7 +24,7 @@ class Profile extends React.Component {
 			onParse: (result) => {
 				this.setState({
 					isLoaded: true,
-					playerData: result,
+					profileData: result,
 				});
 			},
 			onError: (error) => {
