@@ -1,7 +1,7 @@
 import React from "react";
 import { withRouter } from "react-router-dom";
 import PageSurround from "../../components/PageSurround";
-import { Spin, Alert, Row, Col, Descriptions, Space } from "antd";
+import { Spin, Alert, Row, Col, Descriptions, Table, Button } from "antd";
 import RestApi from "../../utils/RestApi";
 import Moment from "react-moment";
 import CurrencyFormat from "react-currency-format";
@@ -69,8 +69,12 @@ class GameDetail extends React.Component {
 					pageBreadcrumb={pageBreadcrumb}
 					pageTitle={title}
 					history={this.props.history}
+					extra={[
+						<Button key='editgame'>Edit Game</Button>,
+						<Button type='primary' key='completegame'>Complete Game</Button>
+					]}
 				>
-					<Row>
+					<Row gutter={16}>
 						<Col sm={24} md={12}>
 							<Descriptions bordered title="Game Info">
 								<Descriptions.Item label="ID">
@@ -95,7 +99,10 @@ class GameDetail extends React.Component {
 							</Descriptions>
 						</Col>
 						<Col sm={24} md={12}>
-							<GameParticipantList gameid={this.state.gameData.id} />
+							<GameParticipantList
+								gameid={this.state.gameData.id}
+								participants={this.state.gameData.participants}
+							/>
 						</Col>
 					</Row>
 				</PageSurround>
@@ -117,10 +124,10 @@ class GameParticipantList extends React.Component {
 	}
 
 	componentDidMount() {
-		let p = [];
-		if (!this.state.participants.length) {
-			let participantPromise = new RestApi(
-				"/poker/games/" + this.gameid + "/participants/"
+		let reqPromises = [];
+		this.state.participants.forEach((element) => {
+			let reqPromise = new RestApi(
+				"/players/players/" + element.player_ref + "/"
 			).retrieve({
 				onRes: (res) => {
 					if (res.status !== 200) {
@@ -131,10 +138,11 @@ class GameParticipantList extends React.Component {
 					return res;
 				},
 				onParse: (result) => {
+					let pList = this.state.detailedParticipants;
+					pList.push({ ...element, ...result });
 					this.setState({
-						participants: result,
+						detailedParticipants: pList,
 					});
-					console.log("parse");
 				},
 				onError: (error) => {
 					this.setState({
@@ -143,62 +151,41 @@ class GameParticipantList extends React.Component {
 					});
 				},
 			});
-			p.push(participantPromise);
-		}
-
-		Promise.all(p).then(() => {
-			if (!this.state.error) {
-				console.log("check");
-				let reqPromises = [];
-				this.state.participants.forEach((element) => {
-					let reqPromise = new RestApi(
-						"/players/players/" + element.player_ref + "/"
-					).retrieve({
-						onRes: (res) => {
-							if (res.status !== 200) {
-								return Promise.reject(
-									new Error("Unable to retrieve participant list.")
-								);
-							}
-							return res;
-						},
-						onParse: (result) => {
-							let pList = this.state.detailedParticipants;
-							pList.push({ ...element, ...result });
-							this.setState({
-								detailedParticipants: pList,
-							});
-						},
-						onError: (error) => {
-							this.setState({
-								isLoaded: true,
-								error,
-							});
-						},
-					});
-					reqPromises.push(reqPromise);
-				});
-				Promise.all(reqPromises).then(() => {
-					this.setState({
-						isLoaded: true,
-					});
-				});
-			}
+			reqPromises.push(reqPromise);
+		});
+		Promise.all(reqPromises).then(() => {
+			this.setState({
+				isLoaded: true,
+			});
 		});
 	}
 
 	render() {
-		if (this.state.isLoaded) {
-			let displayList = [];
-			console.log(this.state);
-			this.state.detailedParticipants.forEach((player) => {
-				displayList.push(
-					<PlayerName key={player.id} data={player}>
-						{player.name}
-					</PlayerName>
-				);
-			});
-			return <Space direction="vertical">{displayList}</Space>;
+		if (this.state.error) {
+			return <Alert type="error" message={this.state.error.message} />;
+		} else if (this.state.isLoaded) {
+			let cols = [
+				{
+					title: "Player",
+					dataIndex: "name",
+					key: "name",
+					render: (value, record) => (
+						<PlayerName key={record.id} data={record}>{value}</PlayerName>
+					),
+				},
+			];
+			return (
+				<div>
+					<div className="ant-descriptions-title">Game Players</div>
+					<Table
+						showHeader={false}
+						columns={cols}
+						dataSource={this.state.detailedParticipants}
+						pagination={false}
+						bordered={true}
+					/>
+				</div>
+			);
 		} else {
 			return <Spin />;
 		}
