@@ -1,10 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { InfoCircleOutlined } from "@ant-design/icons";
 import { Alert, Space, Button, Popover, message, Spin } from "antd";
 import PageSurround from "../../components/PageSurround";
 import DataTable from "../../components/DataTable";
 import DeleteButton from "../../components/DeleteButton";
-import PlayerName from"../../components/PlayerName";
+import PlayerName from "../../components/PlayerName";
 import RestApi from "../../utils/RestApi";
 import CurrencyFormat from "react-currency-format";
 import Moment from "react-moment";
@@ -71,7 +72,7 @@ class Games extends React.Component {
 				sorter: (a, b) => {
 					return a.date_played.localeCompare(b.date_played);
 				},
-				defaultSortOrder: 'descend',
+				defaultSortOrder: "descend",
 			},
 			{
 				title: "Number",
@@ -82,17 +83,31 @@ class Games extends React.Component {
 				title: "Stake",
 				dataIndex: "stake",
 				render: (val) => (
-					<CurrencyFormat
-						value={val / 100}
-						displayType="text"
-						prefix="£"
-					/>
+					<CurrencyFormat value={val / 100} displayType="text" prefix="£" />
 				),
 			},
 			{
 				title: "Players",
 				key: "participants",
-				render: (record) => <GameParticipantCount gameid={record.id} />,
+				render: (record) => (
+					<Popover
+						content={
+							<GameParticipantList
+								gameid={this.gameid}
+								participants={record.participants}
+							/>
+						}
+					>
+						{record.participants.length} <InfoCircleOutlined />
+					</Popover>
+				),
+			},
+			{
+				title: 'Tables',
+				key: 'tables',
+				render: (record) => (
+					record.tables.length
+				),
 			},
 			{
 				key: "edit",
@@ -100,9 +115,7 @@ class Games extends React.Component {
 				render: (record) => (
 					<Space>
 						<Link to={"/games/detail/" + record.id}>
-							<Button>
-								View
-							</Button>
+							<Button>View</Button>
 						</Link>
 						<DeleteButton
 							id={record.id}
@@ -142,148 +155,71 @@ class Games extends React.Component {
 	}
 }
 
-class GameParticipantCount extends React.Component {
+class GameParticipantList extends React.Component {
 	constructor(props) {
 		super(props);
 		this.gameid = props.gameid;
 		this.state = {
 			error: null,
 			isLoaded: false,
-			participants: [],
+			participants: props.participants || [],
+			detailedParticipants: [],
 		};
 	}
 
 	componentDidMount() {
-		new RestApi("/poker/games/" + this.gameid + "/participants/").retrieve({
-			onRes: (res) => {
-				if (res.status !== 200) {
-					return Promise.reject(
-						new Error("Unable to retrieve participant list.")
-					);
-				}
-				return res;
-			},
-			onParse: (result) => {
-				this.setState({
-					isLoaded: true,
-					participants: result,
-				});
-			},
-			onError: (error) => {
-				this.setState({
-					isLoaded: true,
-					error,
-				});
-			},
+		let reqPromises = [];
+		this.state.participants.forEach((element) => {
+			let reqPromise = new RestApi(
+				"/players/players/" + element.player_ref + "/"
+			).retrieve({
+				onRes: (res) => {
+					if (res.status !== 200) {
+						return Promise.reject(
+							new Error("Unable to retrieve participant list.")
+						);
+					}
+					return res;
+				},
+				onParse: (result) => {
+					let pList = this.state.detailedParticipants;
+					pList.push({ ...element, ...result });
+					this.setState({
+						detailedParticipants: pList,
+					});
+				},
+				onError: (error) => {
+					this.setState({
+						isLoaded: true,
+						error,
+					});
+				},
+			});
+			reqPromises.push(reqPromise);
+		});
+		Promise.all(reqPromises).then(() => {
+			this.setState({
+				isLoaded: true,
+			});
 		});
 	}
 
 	render() {
-		return (
-			<Popover
-                content={
-					<GameParticipantList
-						gameid={this.gameid}
-						participants={this.state.participants}
-					/>
-				}
-			>
-				{this.state.participants.length}
-			</Popover>
-		);
-	}
-}
-
-class GameParticipantList extends React.Component  {
-	constructor(props) {
-		super(props);
-		this.gameid = props.gameid;
-		this.state = {
-			error: null,
-			isLoaded: false,
-            participants: props.participants || [],
-            detailedParticipants: [],
-		};
-	}
-
-	componentDidMount() {
-        if (!this.state.participants.length) {
-            let participantPromise = new RestApi("/poker/games/" + this.gameid + "/participants/").retrieve({
-                onRes: (res) => {
-                    if (res.status !== 200) {
-                        return Promise.reject(
-                            new Error("Unable to retrieve participant list.")
-                        );
-                    }
-                    return res;
-                },
-                onParse: (result) => {
-                    this.setState({
-                        participants: result,
-                    });
-                },
-                onError: (error) => {
-                    this.setState({
-                        isLoaded: true,
-                        error,
-                    });
-                },
-			});
-			Promise.all([participantPromise]);
-        }
-
-        if (!this.state.error) {
-			let reqPromises = [];
-            this.state.participants.forEach(element => {
-                let reqPromise = new RestApi("/players/players/" + element.player_ref + "/").retrieve({
-                    onRes: (res) => {
-                        if (res.status !== 200) {
-                            return Promise.reject(
-                                new Error("Unable to retrieve participant list.")
-                            );
-                        }
-                        return res;
-                    },
-                    onParse: (result) => {
-						let pList = this.state.detailedParticipants;
-						pList.push({...element, ...result});
-                        this.setState({
-                            detailedParticipants: pList
-                        });
-                    },
-                    onError: (error) => {
-                        this.setState({
-                            isLoaded: true,
-                            error,
-                        });
-                    },
-				});
-				reqPromises.push(reqPromise);
-			});
-			Promise.all(reqPromises).then(() => {
-				this.setState({
-					isLoaded: true,
-				});
-			});
-        }
-    }
-    
-    render() {
 		if (this.state.isLoaded) {
 			let displayList = [];
 			console.log(this.state);
 			this.state.detailedParticipants.forEach((player) => {
-				displayList.push(<PlayerName key={player.id} data={player}>{player.name}</PlayerName>);
+				displayList.push(
+					<PlayerName key={player.id} data={player}>
+						{player.name}
+					</PlayerName>
+				);
 			});
-			return (
-				<Space direction='vertical'>
-					{displayList}
-				</Space>
-			);
+			return <Space direction="vertical">{displayList}</Space>;
 		} else {
-			return(<Spin />);
+			return <Spin />;
 		}
-    }
+	}
 }
 
 export default Games;

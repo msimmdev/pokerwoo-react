@@ -91,11 +91,18 @@ class AddGame extends React.Component {
                         Promise.all(participantPromises);
 						let tablePromises = [];
 						this.state.designations.forEach((designation) => {
+							let level;
+							if (designation[0] === 'F') {
+								level = 0;
+							} else {
+								level = parseInt(designation[0]);
+							}
 							tablePromises.push(
 								new RestApi("/poker/games/" + gameId + "/tables/").create({
 									data: {
 										designation: designation,
 										progressing: values["progressing_" + designation],
+										level: level,
 									},
 									onRes: (res) => {
 										if (res.status !== 201) {
