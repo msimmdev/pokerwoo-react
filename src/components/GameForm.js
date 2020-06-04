@@ -21,7 +21,6 @@ class GameForm extends React.Component {
 		this.state = {
 			error: null,
 			isLoaded: false,
-			designations: [],
 			players: [],
 		};
 	}
@@ -213,6 +212,9 @@ class GameForm extends React.Component {
 							<Option key="3x1" value="3x1">
 								Three Tables into Final Table
 							</Option>
+							<Option key="4x1" value="4x1">
+								Four Tables into Final Table
+							</Option>
 							<Option key="4x2x1" value="4x2x1">
 								Four Tables into Two into Final Table
 							</Option>
@@ -271,17 +273,24 @@ class GameForm extends React.Component {
 					>
 						{({ getFieldValue }) => {
 							if (getFieldValue("tables") !== "1") {
-								let tables = [];
-								this.props.designations.forEach((designation) => {
-									tables.push(
-										<TableFormSection
-											players={this.state.players}
-											designation={designation}
-											key={designation}
-										/>
-									);
+								let rows = [];
+								Object.keys(this.props.designations).sort((a,b) => parseInt(b) - parseInt(a)).forEach((level) => {
+									let tables = [];
+									console.log(level);
+									this.props.designations[level].forEach((designation) => {
+										console.log(designation);
+										tables.push(
+											<TableFormSection
+												players={this.state.players}
+												designation={designation}
+												key={designation}
+											/>
+										);
+									});
+									console.log(tables);
+									rows.push(<Row gutter={16} key={level}>{tables}</Row>);
 								});
-								return <Row>{tables}</Row>;
+								return rows;
 							}
 							return null;
 						}}
@@ -310,7 +319,7 @@ class TableFormSection extends React.Component {
 				<Divider>Table {this.props.designation}</Divider>
 				<Form.Item
 					label={
-						this.props.designation === "FINAL"
+						this.props.designation === "Final"
 							? "Final Table Players"
 							: "Table " + this.props.designation + " Players"
 					}
@@ -345,7 +354,7 @@ class TableFormSection extends React.Component {
 						})}
 					</Select>
 				</Form.Item>
-				{this.props.designation !== "FINAL" ? (
+				{this.props.designation !== "Final" ? (
 					<Form.Item
 						label="# Players to Progress"
 						name={"progressing_" + this.props.designation}

@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { InfoCircleOutlined } from "@ant-design/icons";
+import { InfoCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { Alert, Space, Button, Popover, message, Spin } from "antd";
 import PageSurround from "../../components/PageSurround";
 import DataTable from "../../components/DataTable";
@@ -52,7 +52,7 @@ class Games extends React.Component {
 		this.setState({
 			games: games.filter((game) => game.id !== id),
 		});
-		message.success("Player has been deleted");
+		message.success("Game has been deleted");
 		return res;
 	}
 
@@ -91,6 +91,7 @@ class Games extends React.Component {
 				key: "participants",
 				render: (record) => (
 					<Popover
+						placement="top"
 						content={
 							<GameParticipantList
 								gameid={this.gameid}
@@ -103,11 +104,9 @@ class Games extends React.Component {
 				),
 			},
 			{
-				title: 'Tables',
-				key: 'tables',
-				render: (record) => (
-					record.tables.length
-				),
+				title: "Tables",
+				key: "tables",
+				render: (record) => record.tables.length,
 			},
 			{
 				key: "edit",
@@ -136,19 +135,22 @@ class Games extends React.Component {
 			);
 		} else {
 			return (
-				<PageSurround pageBreadcrumb={pageBreadcrumb} pageTitle={title}>
-					<Space direction="vertical">
-						<Link to="/games/add">
-							<Button>Add Game</Button>
-						</Link>
-						<DataTable
-							loading={!isLoaded}
-							dataSource={games}
-							columns={cols}
-							rowKey="id"
-							bordered
-						/>
-					</Space>
+				<PageSurround
+					pageBreadcrumb={pageBreadcrumb}
+					pageTitle={title}
+					extra={[
+						<Link to="/games/add" key='addlink'>
+							<Button icon={<PlusOutlined />}>Create Game</Button>
+						</Link>,
+					]}
+				>
+					<DataTable
+						loading={!isLoaded}
+						dataSource={games}
+						columns={cols}
+						rowKey="id"
+						bordered
+					/>
 				</PageSurround>
 			);
 		}

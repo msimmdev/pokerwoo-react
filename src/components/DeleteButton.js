@@ -16,7 +16,6 @@ class DeleteButton extends React.Component {
 	}
 
 	deletePlayer() {
-        console.log('delete');
 		this.setState({ loading: true });
 		new RestApi(this.resourse).delete({
 			onRes: (res) => {
