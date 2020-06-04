@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import PageSurround from "../../components/PageSurround";
 import { Switch, Alert, Space, Button, message } from "antd";
-import { EditOutlined } from "@ant-design/icons";
+import { EditOutlined, PlusOutlined } from "@ant-design/icons";
 import PlayerName from "../../components/PlayerName";
 import DataTable from "../../components/DataTable";
 import DeleteButton from "../../components/DeleteButton";
@@ -50,7 +50,7 @@ class Players extends React.Component {
 		this.setState({
 			players: players.filter((player) => player.id !== id),
 		});
-		message.success('Player has been deleted');
+		message.success("Player has been deleted");
 		return res;
 	}
 
@@ -83,7 +83,7 @@ class Players extends React.Component {
 					return a.pokerth_name.localeCompare(b.pokerth_name);
 				},
 				defaultSortOrder: "ascend",
-				responsive: ['md'],
+				responsive: ["md"],
 			},
 			{
 				dataIndex: "active",
@@ -92,7 +92,7 @@ class Players extends React.Component {
 					<ToggleStatus status={status} id={record.id} />
 				),
 				align: "center",
-				responsive: ['md'],
+				responsive: ["md"],
 			},
 			{
 				key: "edit",
@@ -123,19 +123,22 @@ class Players extends React.Component {
 			);
 		} else {
 			return (
-				<PageSurround pageBreadcrumb={pageBreadcrumb} pageTitle={title}>
-					<Space direction="vertical">
+				<PageSurround
+					pageBreadcrumb={pageBreadcrumb}
+					pageTitle={title}
+					extra={[
 						<Link to="/players/add">
-							<Button>Add Player</Button>
-						</Link>
-						<DataTable
-							loading={!isLoaded}
-							dataSource={players}
-							columns={cols}
-							rowKey="id"
-							bordered
-						/>
-					</Space>
+							<Button icon={<PlusOutlined />}>Create Player</Button>
+						</Link>,
+					]}
+				>
+					<DataTable
+						loading={!isLoaded}
+						dataSource={players}
+						columns={cols}
+						rowKey="id"
+						bordered
+					/>
 				</PageSurround>
 			);
 		}

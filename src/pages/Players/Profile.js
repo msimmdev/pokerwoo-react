@@ -1,8 +1,11 @@
 import React from "react";
 import { withRouter } from "react-router-dom";
 import PageSurround from "../../components/PageSurround";
-import { Spin, Descriptions, Space, Avatar, Tag } from "antd";
+import { Spin, Descriptions, Space, Avatar, Tag, Button, Row, Col, message } from "antd";
+import { EditOutlined } from "@ant-design/icons";
+import { Link } from "react-router-dom";
 import RestApi from "../../utils/RestApi";
+import DeleteButton from "../../components/DeleteButton";
 
 class Profile extends React.Component {
 	constructor(props) {
@@ -15,10 +18,10 @@ class Profile extends React.Component {
 
 	componentDidMount() {
 		const id = this.props.match.params.playerid;
-		new RestApi('/players/players/' + id + '/').retrieve({
+		new RestApi("/players/players/" + id + "/").retrieve({
 			onRes: (res) => {
 				if (res.status !== 200) {
-					return Promise.reject(new Error('Unable to retrieve player.'));
+					return Promise.reject(new Error("Unable to retrieve player."));
 				}
 				return res;
 			},
@@ -74,7 +77,7 @@ class Profile extends React.Component {
 			});
 
 			let paymentDescriptions = (
-				<Descriptions bordered title="Payment Info">
+				<Descriptions bordered title="Payment Info" column={{ xs: 1, sm: 2 }}>
 					{this.state.playerData.payment_link ? (
 						<Descriptions.Item label="Payment Link">
 							{this.state.playerData.payment_link}
@@ -111,29 +114,53 @@ class Profile extends React.Component {
 					pageBreadcrumb={pageBreadcrumb}
 					pageTitle={title}
 					history={this.props.history}
+					extra={[
+						<DeleteButton
+							id={this.state.playerData.id}
+							resourse={"/players/players/" + this.state.playerData.id + "/"}
+							onRes={() => {
+								message.success("Game has been deleted");
+								this.props.history.push("/players");
+							}}
+							confirmMessage="Are you sure you want to delete this player?"
+						>
+							Delete Player
+						</DeleteButton>,
+						<Link to={"/players/edit/" + this.state.playerData.id}>
+							<Button icon={<EditOutlined />}>Edit Player</Button>
+						</Link>,
+					]}
 				>
-					<Space direction="vertical">
-						<Descriptions bordered title="Player Info">
-							<Descriptions.Item label="Name">
-								{this.state.playerData.name}
-							</Descriptions.Item>
-							{this.state.playerData.pokerth_name ? (
-								<Descriptions.Item label="PokerTH Name">
-									{this.state.playerData.pokerth_name}
+					<Row gutter={16}>
+						<Col sm={24} md={12}>
+							<Descriptions
+								bordered
+								title="Player Info"
+								column={{ xs: 1, sm: 2 }}
+							>
+								<Descriptions.Item label="Name">
+									{this.state.playerData.name}
 								</Descriptions.Item>
-							) : (
-								""
-							)}
-							<Descriptions.Item label="Status">
-								{this.state.playerData.active ? (
-									<Tag color="success">Enabled</Tag>
+								{this.state.playerData.pokerth_name ? (
+									<Descriptions.Item label="PokerTH Name">
+										{this.state.playerData.pokerth_name}
+									</Descriptions.Item>
 								) : (
-									<Tag color="error">Disabled</Tag>
+									""
 								)}
-							</Descriptions.Item>
-						</Descriptions>
-						{hasPaymentInfo ? paymentDescriptions : ""}
-					</Space>
+								<Descriptions.Item label="Status">
+									{this.state.playerData.active ? (
+										<Tag color="success">Enabled</Tag>
+									) : (
+										<Tag color="error">Disabled</Tag>
+									)}
+								</Descriptions.Item>
+							</Descriptions>
+						</Col>
+						<Col sm={24} md={12}>
+							{hasPaymentInfo ? paymentDescriptions : ""}
+						</Col>
+					</Row>
 				</PageSurround>
 			);
 		}

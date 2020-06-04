@@ -11,7 +11,7 @@ class AddGame extends React.Component {
 		this.onSubmit = this.onSubmit.bind(this);
 		this.changeTables = this.changeTables.bind(this);
 		this.state = {
-			designations: [],
+			designations: {},
 			isSaving: false,
 		};
 	}
@@ -47,15 +47,17 @@ class AddGame extends React.Component {
 					if (values.tables !== '1') {
                         let addedPlayers = {};
                         let gameParticipants = [];
-                        this.state.designations.forEach((designation) => {
-                            if (values["participants_" + designation]) {
-                                values["participants_" + designation].forEach((element) => {
-                                    if (!addedPlayers[element]) {
-                                        gameParticipants.push(element);
-                                        addedPlayers[element] = 1;
-                                    }
-                                });
-                            }
+                        Object.keys(this.state.designations).forEach((level) => {
+							this.state.designations[level].forEach((designation) => {
+								if (values["participants_" + designation]) {
+									values["participants_" + designation].forEach((element) => {
+										if (!addedPlayers[element]) {
+											gameParticipants.push(element);
+											addedPlayers[element] = 1;
+										}
+									});
+								}
+							});
                         });
                         let addedPlayerRefs = {};
                         let participantPromises = [];
@@ -90,82 +92,78 @@ class AddGame extends React.Component {
                         });
                         Promise.all(participantPromises);
 						let tablePromises = [];
-						this.state.designations.forEach((designation) => {
-							let level;
-							if (designation[0] === 'F') {
-								level = 0;
-							} else {
-								level = parseInt(designation[0]);
-							}
-							tablePromises.push(
-								new RestApi("/poker/games/" + gameId + "/tables/").create({
-									data: {
-										designation: designation,
-										progressing: values["progressing_" + designation],
-										level: level,
-									},
-									onRes: (res) => {
-										if (res.status !== 201) {
-											return Promise.reject(
-												new Error("Unable to create table")
-											);
-										}
-										return res;
-									},
-									onParse: (result) => {
-										let tableId = result.id;
-                                        if (values["participants_" + designation]) {
-                                            let tableParticipantPromises = [];
-                                            values["participants_" + designation].forEach((element) => {
-                                                if (addedPlayerRefs[element]) {
-                                                    let gameParticipantId = addedPlayerRefs[element];
-                                                    tableParticipantPromises.push(
-                                                        new RestApi(
-                                                            "/poker/games/" +
-                                                                gameId +
-                                                                "/tables/" +
-                                                                tableId +
-                                                                "/participants/"
-                                                        ).create({
-                                                            data: { game_participant: gameParticipantId },
-                                                            onRes: (res) => {
-                                                                if (res.status !== 201) {
-                                                                    return Promise.reject(
-                                                                        new Error(
-                                                                            "Unable to add participants to table"
-                                                                        )
-                                                                    );
-                                                                }
-                                                                return res;
-                                                            },
-                                                            onError: (error) => {
-                                                                this.setState({
-                                                                    isSaving: false,
-                                                                });
-                                                                message.error(error.message);
-                                                            },
-                                                        })
-                                                    );
-                                                }
-                                            });
-                                            Promise.all(tableParticipantPromises);
-                                        }
-									},
-									onError: (error) => {
-										this.setState({
-											isSaving: false,
-										});
-										message.error(error.message);
-									},
-								})
-							);
+                        Object.keys(this.state.designations).forEach((level) => {
+							this.state.designations[level].forEach((designation) => {
+								tablePromises.push(
+									new RestApi("/poker/games/" + gameId + "/tables/").create({
+										data: {
+											designation: designation,
+											progressing: values["progressing_" + designation],
+											level: level,
+										},
+										onRes: (res) => {
+											if (res.status !== 201) {
+												return Promise.reject(
+													new Error("Unable to create table")
+												);
+											}
+											return res;
+										},
+										onParse: (result) => {
+											let tableId = result.id;
+											if (values["participants_" + designation]) {
+												let tableParticipantPromises = [];
+												values["participants_" + designation].forEach((element) => {
+													if (addedPlayerRefs[element]) {
+														let gameParticipantId = addedPlayerRefs[element];
+														tableParticipantPromises.push(
+															new RestApi(
+																"/poker/games/" +
+																	gameId +
+																	"/tables/" +
+																	tableId +
+																	"/participants/"
+															).create({
+																data: { game_participant: gameParticipantId },
+																onRes: (res) => {
+																	if (res.status !== 201) {
+																		return Promise.reject(
+																			new Error(
+																				"Unable to add participants to table"
+																			)
+																		);
+																	}
+																	return res;
+																},
+																onError: (error) => {
+																	this.setState({
+																		isSaving: false,
+																	});
+																	message.error(error.message);
+																},
+															})
+														);
+													}
+												});
+												Promise.all(tableParticipantPromises);
+											}
+										},
+										onError: (error) => {
+											this.setState({
+												isSaving: false,
+											});
+											message.error(error.message);
+										},
+									})
+								);
+							});
 						});
 						Promise.all(tablePromises);
 					} else {
 						let tablePromise = new RestApi(
 							"/poker/games/" + gameId + "/tables/"
 						).create({
-							data: { designation: "A" },
+							data: { designation: "Final" },
 							onRes: (res) => {
 								if (res.status !== 201) {
 									return Promise.reject(new Error("Unable to create table"));
@@ -241,14 +239,16 @@ class AddGame extends React.Component {
 
 	changeTables(value) {
 		let levels = value.split("x");
-		let designations = [];
+		let designations = {};
 		for (let i = 0; i < levels.length; i++) {
+			let storeLevel = levels.length - i;
+			designations[storeLevel] = designations[storeLevel] || [];
 			let levelTables = parseInt(levels[i]);
 			if (i + 1 === levels.length) {
-				designations.push("FINAL");
+				designations[i].push("Final");
 			} else {
 				for (let j = 0; j < levelTables; j++) {
-					designations.push(i + 1 + "-" + String.fromCharCode(65 + j));
+					designations[storeLevel].push(i + 1 + "-" + String.fromCharCode(65 + j));
 				}
 			}
 		}
