@@ -6,5 +6,7 @@ import EditPlayer from "./Players/EditPlayer";
 import Profile from "./Players/Profile";
 import AddGame from './Games/AddGame';
 import GameDetail from './Games/GameDetail';
+import EditGame from './Games/EditGame';
+import CompleteGame from './Games/CompleteGame';
 
-export {Players, Games, Dashboard, AddPlayer, EditPlayer, Profile, AddGame, GameDetail};
+export {Players, Games, Dashboard, AddPlayer, EditPlayer, Profile, AddGame, GameDetail, EditGame, CompleteGame};

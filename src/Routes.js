@@ -1,6 +1,6 @@
 import React from "react";
 import { Switch, Route } from "react-router-dom";
-import { Players, Games, Dashboard, AddPlayer, EditPlayer, Profile, AddGame, GameDetail } from "./pages";
+import { Players, Games, Dashboard, AddPlayer, EditPlayer, Profile, AddGame, GameDetail, EditGame, CompleteGame } from "./pages";
 
 const routes = [
 	{
@@ -22,6 +22,14 @@ const routes = [
 	{
 		path: "/games/detail/:gameid",
 		component: GameDetail,
+	},
+	{
+		path: "/games/edit/:gameid",
+		component: EditGame,
+	},
+	{
+		path: "/games/complete/:gameid",
+		component: CompleteGame,
 	},
 	{
 		path: '/games/add',

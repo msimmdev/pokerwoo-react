@@ -2,25 +2,15 @@ import React from "react";
 import { Link, withRouter } from "react-router-dom";
 import Moment from "react-moment";
 import CurrencyFormat from "react-currency-format";
-import { PageSurround, DeleteButton, PlayerName } from "../../components";
-import RestApi from "../../utils/RestApi";
 import {
-	Spin,
-	Alert,
-	Button,
-	Row,
-	Col,
-	Descriptions,
-	Table,
-	Modal,
-	Form,
-	Select,
-	Divider,
-	message,
-} from "antd";
+	PageSurround,
+	DeleteButton,
+	TableList,
+	PlayerList,
+} from "../../components";
+import RestApi from "../../utils/RestApi";
+import { Spin, Alert, Button, Row, Col, Descriptions, message } from "antd";
 import { EditOutlined, PlayCircleOutlined } from "@ant-design/icons";
-
-const { Option } = Select;
 
 class GameDetail extends React.Component {
 	constructor(props) {
@@ -311,6 +301,9 @@ class GameDetail extends React.Component {
 							tableResourse={
 								"/poker/games/" + this.state.gameData.id + "/tables/"
 							}
+							delete={true}
+							complete={false}
+							add={true}
 						/>
 					) : (
 						""
@@ -371,197 +364,10 @@ class GamePlayerInfo extends React.Component {
 				removeResourse={this.props.removeResourse}
 				removePlayer={this.props.removePlayer}
 				removeKey="participantId"
+				delete={true}
+				complete={false}
+				add={true}
 			/>
-		);
-	}
-}
-
-class TableList extends React.Component {
-	render() {
-		if (this.props.isLoaded) {
-			let renderList = [];
-			let tableStruct = {};
-			this.props.tableData
-				.sort((a, b) => a.designation.localeCompare(b.designation))
-				.forEach((table) => {
-					tableStruct[table.level] = tableStruct[table.level] || [];
-					tableStruct[table.level].push(table);
-				});
-			let i = 1;
-			Object.keys(tableStruct)
-				.sort((a, b) => parseInt(b) - parseInt(a))
-				.forEach((level) => {
-					let tableList = [];
-					tableStruct[level].forEach((table) => {
-						let tablePlayers = [];
-						let otherPlayers = [];
-						let players = [...this.props.playerData];
-						players.forEach((player) => {
-							let added = false;
-							table.participants.forEach((participant) => {
-								if (participant.game_participant === player.participantId) {
-									let newPlayer = { ...player };
-									newPlayer.tableParticipantId = participant.id;
-									tablePlayers.push(newPlayer);
-									added = true;
-								}
-							});
-							if (!added && player.active && player.participantId) {
-								otherPlayers.push(player);
-							}
-						});
-						tableList.push(
-							<Col sm={24} md={12} key={table.id}>
-								<PlayerList
-									players={tablePlayers}
-									validExtraPlayers={otherPlayers}
-									label={table.designation}
-									addPlayer={(playerId) => {
-										let participantId;
-										players.forEach((player) => {
-											if (player.id === playerId) {
-												participantId = player.participantId;
-											}
-										});
-										this.props.addPlayer(table.id, participantId);
-									}}
-									removePlayer={(res, playerId) => {
-										let participantId;
-										players.forEach((player) => {
-											if (player.id === playerId) {
-												participantId = player.participantId;
-											}
-										});
-										this.props.removePlayer(res, table.id, participantId);
-									}}
-									removeResourse={
-										this.props.tableResourse + table.id + "/participants/"
-									}
-									removeKey="tableParticipantId"
-								/>
-							</Col>
-						);
-					});
-					renderList.push(
-						<Row key={level} gutter={16}>
-							<Divider>{"Group " + i + " Tables"}</Divider>
-							{tableList}
-						</Row>
-					);
-					i++;
-				});
-			return renderList;
-		} else {
-			return <Spin />;
-		}
-	}
-}
-
-class PlayerList extends React.Component {
-	constructor(props) {
-		super(props);
-		this.formRef = React.createRef();
-		this.state = {
-			addVisible: false,
-		};
-	}
-
-	render() {
-		let cols = [
-			{
-				title: "Player",
-				dataIndex: "name",
-				key: "name",
-				render: (value, record) => (
-					<PlayerName key={record.id} data={record}>
-						{value}
-					</PlayerName>
-				),
-			},
-			{
-				key: "remove",
-				align: "center",
-				render: (record) => (
-					<DeleteButton
-						key={record.id}
-						id={record.id}
-						resourse={
-							this.props.removeResourse + record[this.props.removeKey] + "/"
-						}
-						onRes={this.props.removePlayer}
-						confirmMessage="Are you sure you want to remove this player?"
-					>
-						Remove
-					</DeleteButton>
-				),
-			},
-		];
-		return (
-			<div>
-				<Row>
-					<Col span={12}>
-						<div className="ant-descriptions-title">{this.props.label}</div>
-					</Col>
-					{this.props.validExtraPlayers.length > 0 ? (
-						<Col span={12}>
-							<Button
-								style={{ float: "right" }}
-								onClick={() => this.setState({ addVisible: true })}
-							>
-								Add Player
-							</Button>
-							<Modal
-								visible={this.state.addVisible}
-								title="Add Player"
-								okText="Add"
-								cancelText="Cancel"
-								onOk={() =>
-									this.formRef.current
-										.validateFields()
-										.then((values) => this.props.addPlayer(values.player))
-										.then(() => this.setState({ addVisible: false }))
-								}
-								onCancel={() => this.setState({ addVisible: false })}
-							>
-								<Form ref={this.formRef} layout="vertical" name="add_form">
-									<Form.Item
-										name="player"
-										label="Player"
-										rules={[
-											{ required: true, message: "You must select a player" },
-										]}
-									>
-										<Select
-											placeholder="Choose a player"
-											filterOption={(input, option) =>
-												option.children
-													.toLowerCase()
-													.indexOf(input.toLowerCase()) >= 0
-											}
-										>
-											{this.props.validExtraPlayers.map((player) => (
-												<Option key={player.id} value={player.id}>
-													{player.name}
-												</Option>
-											))}
-										</Select>
-									</Form.Item>
-								</Form>
-							</Modal>
-						</Col>
-					) : (
-						""
-					)}
-				</Row>
-				<Table
-					showHeader={false}
-					columns={cols}
-					dataSource={this.props.players}
-					pagination={false}
-					bordered={true}
-					rowKey="id"
-				/>
-			</div>
 		);
 	}
 }

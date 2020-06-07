@@ -192,109 +192,123 @@ class GameForm extends React.Component {
 							return null;
 						}}
 					</Form.Item>
-					<Form.Item
-						label="Number of tables"
-						name="tables"
-						rules={[
-							{
-								required: true,
-								message: "You must provide a number of tables",
-							},
-						]}
-					>
-						<Select onChange={this.props.changeTables}>
-							<Option key="1" value="1">
-								Single Table
-							</Option>
-							<Option key="2x1" value="2x1">
-								Two Tables into Final Table
-							</Option>
-							<Option key="3x1" value="3x1">
-								Three Tables into Final Table
-							</Option>
-							<Option key="4x1" value="4x1">
-								Four Tables into Final Table
-							</Option>
-							<Option key="4x2x1" value="4x2x1">
-								Four Tables into Two into Final Table
-							</Option>
-						</Select>
-					</Form.Item>
-					<Form.Item
-						noStyle
-						shouldUpdate={(prevValues, currentValues) =>
-							prevValues.tables !== currentValues.tables
-						}
-					>
-						{({ getFieldValue }) => {
-							if (getFieldValue("tables") === "1") {
-								return (
-									<Form.Item
-										label="Players"
-										name="participants"
-										rules={[
-											{
-												required: true,
-												message: "You must provide a stake for the game",
-											},
-										]}
-									>
-										<Select
-											mode="multiple"
-											placeholder="Select some Players"
-											filterOption={(input, option) =>
-												option.children
-													.toLowerCase()
-													.indexOf(input.toLowerCase()) >= 0
-											}
-										>
-											{this.state.players.map((player) => {
-												if (player.active) {
-													return (
-														<Option key={player.id} value={player.id}>
-															{player.name}
-														</Option>
-													);
-												}
-												return "";
-											})}
-										</Select>
-									</Form.Item>
-								);
-							}
-							return null;
-						}}
-					</Form.Item>
-					<Form.Item
-						noStyle
-						shouldUpdate={(prevValues, currentValues) =>
-							prevValues.tables !== currentValues.tables
-						}
-					>
-						{({ getFieldValue }) => {
-							if (getFieldValue("tables") !== "1") {
-								let rows = [];
-								Object.keys(this.props.designations).sort((a,b) => parseInt(b) - parseInt(a)).forEach((level) => {
-									let tables = [];
-									console.log(level);
-									this.props.designations[level].forEach((designation) => {
-										console.log(designation);
-										tables.push(
-											<TableFormSection
-												players={this.state.players}
-												designation={designation}
-												key={designation}
-											/>
+					{this.props.full ? (
+						<div>
+							<Form.Item
+								label="Number of tables"
+								name="tables"
+								rules={[
+									{
+										required: true,
+										message: "You must provide a number of tables",
+									},
+								]}
+							>
+								<Select onChange={this.props.changeTables}>
+									<Option key="1" value="1">
+										Single Table
+									</Option>
+									<Option key="2x1" value="2x1">
+										Two Tables into Final Table
+									</Option>
+									<Option key="3x1" value="3x1">
+										Three Tables into Final Table
+									</Option>
+									<Option key="4x1" value="4x1">
+										Four Tables into Final Table
+									</Option>
+									<Option key="4x2x1" value="4x2x1">
+										Four Tables into Two into Final Table
+									</Option>
+								</Select>
+							</Form.Item>
+							<Form.Item
+								noStyle
+								shouldUpdate={(prevValues, currentValues) =>
+									prevValues.tables !== currentValues.tables
+								}
+							>
+								{({ getFieldValue }) => {
+									if (getFieldValue("tables") === "1") {
+										return (
+											<Form.Item
+												label="Players"
+												name="participants"
+												rules={[
+													{
+														required: true,
+														message: "You must provide a stake for the game",
+													},
+												]}
+											>
+												<Select
+													mode="multiple"
+													placeholder="Select some Players"
+													filterOption={(input, option) =>
+														option.children
+															.toLowerCase()
+															.indexOf(input.toLowerCase()) >= 0
+													}
+												>
+													{this.state.players.map((player) => {
+														if (player.active) {
+															return (
+																<Option key={player.id} value={player.id}>
+																	{player.name}
+																</Option>
+															);
+														}
+														return "";
+													})}
+												</Select>
+											</Form.Item>
 										);
-									});
-									console.log(tables);
-									rows.push(<Row gutter={16} key={level}>{tables}</Row>);
-								});
-								return rows;
-							}
-							return null;
-						}}
-					</Form.Item>
+									}
+									return null;
+								}}
+							</Form.Item>
+							<Form.Item
+								noStyle
+								shouldUpdate={(prevValues, currentValues) =>
+									prevValues.tables !== currentValues.tables
+								}
+							>
+								{({ getFieldValue }) => {
+									if (getFieldValue("tables") !== "1") {
+										let rows = [];
+										Object.keys(this.props.designations)
+											.sort((a, b) => parseInt(b) - parseInt(a))
+											.forEach((level) => {
+												let tables = [];
+												console.log(level);
+												this.props.designations[level].forEach(
+													(designation) => {
+														console.log(designation);
+														tables.push(
+															<TableFormSection
+																players={this.state.players}
+																designation={designation}
+																key={designation}
+															/>
+														);
+													}
+												);
+												console.log(tables);
+												rows.push(
+													<Row gutter={16} key={level}>
+														{tables}
+													</Row>
+												);
+											});
+										return rows;
+									}
+									return null;
+								}}
+							</Form.Item>
+						</div>
+					) : (
+						""
+					)}
 					<Form.Item wrapperCol={{ offset: 8, span: 16 }}>
 						<Button
 							type="primary"

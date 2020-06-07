@@ -2,7 +2,7 @@ import React from "react";
 import { withRouter } from "react-router-dom";
 import PageSurround from "../../components/PageSurround";
 import PlayerForm from "../../components/PlayerForm";
-import { message, Spin } from "antd";
+import { message, Spin, Alert } from "antd";
 import RestApi from "../../utils/RestApi";
 
 class EditPlayer extends React.Component {
@@ -81,7 +81,17 @@ class EditPlayer extends React.Component {
 					<Spin />
 				</PageSurround>
 			);
-		} else {
+		} else if (this.state.error) {
+			return (
+				<PageSurround
+					pageBreadcrumb={pageBreadcrumb}
+					pageTitle={title}
+					history={this.props.history}
+				>
+					<Alert type='error' message={this.state.error.message} />
+				</PageSurround>
+			);
+        } else {
 			return (
 				<PageSurround
 					pageBreadcrumb={pageBreadcrumb}

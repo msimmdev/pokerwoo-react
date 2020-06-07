@@ -275,6 +275,7 @@ class AddGame extends React.Component {
 					isSaving={this.state.isSaving}
 					changeTables={this.changeTables}
 					designations={this.state.designations}
+					full={true}
 				/>
 			</PageSurround>
 		);
