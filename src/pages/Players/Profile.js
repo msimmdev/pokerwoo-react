@@ -1,7 +1,17 @@
 import React from "react";
 import { withRouter } from "react-router-dom";
 import PageSurround from "../../components/PageSurround";
-import { Spin, Descriptions, Space, Avatar, Tag, Button, Row, Col, message } from "antd";
+import {
+	Spin,
+	Descriptions,
+	Space,
+	Avatar,
+	Tag,
+	Button,
+	Row,
+	Col,
+	message,
+} from "antd";
 import { EditOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import RestApi from "../../utils/RestApi";
@@ -117,6 +127,7 @@ class Profile extends React.Component {
 					extra={[
 						<DeleteButton
 							id={this.state.playerData.id}
+							key="deletebutton"
 							resourse={"/players/players/" + this.state.playerData.id + "/"}
 							onRes={() => {
 								message.success("Game has been deleted");
@@ -126,7 +137,10 @@ class Profile extends React.Component {
 						>
 							Delete Player
 						</DeleteButton>,
-						<Link to={"/players/edit/" + this.state.playerData.id}>
+						<Link
+							key="editlink"
+							to={"/players/edit/" + this.state.playerData.id}
+						>
 							<Button icon={<EditOutlined />}>Edit Player</Button>
 						</Link>,
 					]}
