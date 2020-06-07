@@ -32,7 +32,7 @@ class PageSurround extends React.Component {
 			<div>
 				<Breadcrumb style={{ margin: "16px 0" }}>{breadcrumbList}</Breadcrumb>
 				<div className="site-layout-content">
-					<PageHeader extra={this.props.extra} title={this.props.pageTitle} onBack={this.backLink ? this.handleBack : false}/>
+					<PageHeader extra={this.props.extra} title={this.props.pageTitle} onBack={this.props.customBack ? this.props.customBack : this.backLink ? this.handleBack : false}/>
 					{this.props.children}
 				</div>
 			</div>
