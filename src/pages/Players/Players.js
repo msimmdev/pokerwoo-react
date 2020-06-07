@@ -127,7 +127,7 @@ class Players extends React.Component {
 					pageBreadcrumb={pageBreadcrumb}
 					pageTitle={title}
 					extra={[
-						<Link to="/players/add">
+						<Link key="addplayer" to="/players/add">
 							<Button icon={<PlusOutlined />}>Create Player</Button>
 						</Link>,
 					]}
