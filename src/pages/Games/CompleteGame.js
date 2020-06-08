@@ -24,7 +24,7 @@ class CompleteGame extends React.Component {
 		this.id = props.match.params.gameid;
 		this.stageForward = this.stageForward.bind(this);
 		this.stageBack = this.stageBack.bind(this);
-		this.onComplete = this.onComplete.bind(this);
+		this.onSuccess = this.onSuccess.bind(this);
 		this.onPlace = this.onPlace.bind(this);
 		this.onPayee = this.onPayee.bind(this);
 		this.onBalance = this.onBalance.bind(this);
@@ -139,26 +139,216 @@ class CompleteGame extends React.Component {
 		if (this.state.stage === "tables") {
 			this.setState({ stage: "placing" });
 		} else if (this.state.stage === "placing") {
-			let hasPlaceOne = false;
-			let hasPlaceTwo = false;
-			let hasPlaceThree = false;
-			Object.values(this.state.places).forEach((value) => {
-				if (value === 1) {
-					hasPlaceOne = true;
-				} else if (value === 2) {
-					hasPlaceTwo = true;
-				} else if (value === 3) {
-					hasPlaceThree = true;
-				}
-			});
-			if (hasPlaceOne && hasPlaceTwo && hasPlaceThree) {
-				this.setState({ stage: "payment" });
+			if (
+				Object.keys(this.state.places).length ===
+				this.state.players.filter((item) => item.participantId).length
+			) {
+				let players = [];
+				let firstPlace = [];
+				let pot = 0;
+				this.state.players.forEach((player) => {
+					if (player.participantId) {
+						player.allocated = 0;
+						players.push(player);
+						if (this.state.places[player.id] === 1) {
+							firstPlace.push(player);
+							player.balance = 0;
+						} else if (
+							this.state.places[player.id] === 2 &&
+							this.state.gameData.place_two_multiplier > 0
+						) {
+							player.balance =
+								this.state.gameData.stake *
+								(this.state.gameData.place_two_multiplier - 1);
+						} else if (
+							this.state.places[player.id] === 3 &&
+							this.state.gameData.place_three_multiplier > 0
+						) {
+							player.balance =
+								this.state.gameData.stake *
+								(this.state.gameData.place_three_multiplier - 1);
+						} else {
+							player.balance = this.state.gameData.stake * -1;
+						}
+						pot -= player.balance;
+					}
+				});
+
+				let winnerBalance = pot / firstPlace.length;
+				firstPlace.forEach((player) => {
+					player.balance = winnerBalance;
+				});
+
+				let toPay = [];
+				players
+					.sort((a, b) => a.balance - b.balance)
+					.forEach((player) => {
+						if (player.balance < 0) {
+							toPay.push(player);
+						} else if (player.balance - player.allocated > 0) {
+							while (
+								player.balance - player.allocated > 0 &&
+								toPay.length > 0
+							) {
+								let payer = toPay.shift();
+								payer.payee = player.id;
+								player.allocated += this.state.gameData.stake;
+							}
+						}
+					});
+				this.setState({ stage: "payment", completedPlayers: players });
 			} else {
-				message.error("You must provide a first, second and third place.");
+				message.error("You must provide places for all players.");
 			}
 		} else if (this.state.stage === "payment") {
 			this.setState({ stage: "complete" });
-			console.log(this.state);
+			// Time to do the saving.
+			let tablePromises = [];
+			if (!this.singleTable) {
+				// First update the tables to mark which players progressed.
+				this.state.tables.forEach((table) => {
+					if (table.designation !== "Final") {
+						table.participants.forEach((participant) => {
+							this.state.completedParticipants.forEach((participantId) => {
+								if (participant.game_participant === participantId) {
+									tablePromises.push(
+										new RestApi(
+											"/poker/games/" +
+												this.id +
+												"/tables/" +
+												table.id +
+												"/participants/" +
+												participant.id +
+												"/"
+										).partialUpdate({
+											data: {
+												success: true,
+											},
+											onRes: (res) => {
+												if (res.status !== 200) {
+													return Promise.reject(
+														new Error(
+															"There was a problem updating the table participants."
+														)
+													);
+												}
+												return res;
+											},
+											onError: (error) => {
+												this.setState({
+													error: error,
+												});
+											},
+										})
+									);
+								}
+							});
+						});
+					}
+				});
+			}
+
+			// Next update the game participants to show the placings.
+			Promise.all(tablePromises).then(() => {
+				let gpPromises = [];
+				Object.keys(this.state.places).forEach((playerId) => {
+					this.state.players.forEach((player) => {
+						if (player.id === parseInt(playerId)) {
+							gpPromises.push(
+								new RestApi(
+									"/poker/games/" +
+										this.id +
+										"/participants/" +
+										player.participantId +
+										"/"
+								).partialUpdate({
+									data: {
+										place: this.state.places[playerId],
+									},
+									onRes: (res) => {
+										if (res.status !== 200) {
+											return Promise.reject(
+												new Error(
+													"There was a problem updating the game participants."
+												)
+											);
+										}
+										return res;
+									},
+									onError: (error) => {
+										this.setState({
+											error: error,
+										});
+									},
+								})
+							);
+						}
+					});
+				});
+
+				// Next create the payment obligations.
+				Promise.all(gpPromises).then(() => {
+					let paymentPromises = [];
+					this.state.completedPlayers.forEach((player) => {
+						if (player.payee) {
+							paymentPromises.push(
+								new RestApi("/players/payment_obligation/").create({
+									data: {
+										payer: player.id,
+										payee: player.payee,
+										game_ref: this.id,
+										payment_amount: (player.balance * -1),
+									},
+									onRes: (res) => {
+										if (res.status !== 201) {
+											return Promise.reject(
+												new Error("Unable to create payment obligation")
+											);
+										}
+										return res;
+									},
+									onError: (error) => {
+										this.setState({
+											error: error,
+										});
+									},
+								})
+							);
+						}
+					});
+
+					// Finally mark the payment as complete.
+					Promise.all(paymentPromises).then(() => {
+						new RestApi(
+							"/poker/games/" +
+								this.id + "/"
+						).partialUpdate({
+							data: {
+								complete: true
+							},
+							onRes: (res) => {
+								if (res.status !== 200) {
+									return Promise.reject(
+										new Error(
+											"There was a problem updating the game"
+										)
+									);
+								}
+								return res;
+							},
+							onParse: () => {
+								message.success('Game has been completed');
+								this.props.history.push("/games/detail/" + this.id);
+							},
+							onError: (error) => {
+								this.setState({
+									error: error,
+								});
+							},
+						})
+					});
+				});
+			});
 		}
 	}
 
@@ -175,7 +365,7 @@ class CompleteGame extends React.Component {
 		}
 	}
 
-	onComplete(player, isComplete) {
+	onSuccess(player, isComplete) {
 		if (isComplete) {
 			let existing = false;
 			let completed = [];
@@ -210,11 +400,27 @@ class CompleteGame extends React.Component {
 	}
 
 	onBalance(player, balance) {
-
+		this.setState((state) => {
+			let players = state.completedPlayers;
+			players.forEach((cPlayer) => {
+				if (cPlayer.id === player.id) {
+					cPlayer.balance = balance * 100;
+				}
+			});
+			return { completedPlayers: players };
+		});
 	}
 
 	onPayee(player, payee) {
-
+		this.setState((state) => {
+			let players = state.completedPlayers;
+			players.forEach((cPlayer) => {
+				if (cPlayer.id === player.id) {
+					cPlayer.payee = payee;
+				}
+			});
+			return { completedPlayers: players };
+		});
 	}
 
 	render() {
@@ -274,7 +480,7 @@ class CompleteGame extends React.Component {
 						playerData={this.state.players}
 						isLoaded={this.state.tablesLoaded}
 						completedParticipants={this.state.completedParticipants}
-						onComplete={this.onComplete}
+						onSuccess={this.onSuccess}
 						delete={false}
 						complete={true}
 						add={false}
@@ -307,50 +513,17 @@ class CompleteGame extends React.Component {
 					</Row>
 				);
 			} else if (this.state.stage === "payment") {
-				let players = [];
-				let firstPlace = [];
-				let pot = 0;
-				this.state.players.forEach((player) => {
-					if (player.participantId) {
-						player.allocated = 0;
-						players.push(player);
-						if (this.state.places[player.id] === 1) {
-							firstPlace.push(player);
-							player.balance = 0;
-						} else if (this.state.places[player.id] === 2 && this.state.gameData.place_two_multiplier > 0) {
-							player.balance = (this.state.gameData.stake * (this.state.gameData.place_two_multiplier - 1));
-						} else if (this.state.places[player.id] === 3 && this.state.gameData.place_three_multiplier > 0) {
-							player.balance = (this.state.gameData.stake * (this.state.gameData.place_three_multiplier - 1));
-						} else {
-							player.balance = (this.state.gameData.stake * -1);
-						}
-						pot -= player.balance;
-					}
-				});
+				let players = this.state.completedPlayers;
 
-				let winnerBalance = pot / firstPlace.length;
-				firstPlace.forEach((player) => {
-					player.balance = winnerBalance;
-				});
-				
-				let toPay = [];
-				players.sort((a,b) => a.balance - b.balance).forEach((player) => {
-					if (player.balance < 0) {
-						toPay.push(player);
-					} else if (player.balance - player.allocated > 0) {
-						while (player.balance - player.allocated > 0 && toPay.length > 0) {
-							let payer = toPay.shift()
-							payer.payee = player.id;
-							player.allocated += this.state.gameData.stake;
-						}
-					}
-				});
+				players.sort(
+					(a, b) => this.state.places[a.id] - this.state.places[b.id]
+				);
 
 				content = (
 					<Row gutter={16}>
 						<Col sm={24} md={24}>
 							<PlayerList
-								players={players.sort((a,b) => this.state.places[a.id] - this.state.places[b.id])}
+								players={players}
 								places={this.state.places}
 								delete={false}
 								complete={false}

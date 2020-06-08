@@ -31,7 +31,7 @@ class PlayerList extends React.Component {
 			cols.push({
 				key: "place",
 				align: "center",
-				render: (record) => this.props.places[record.id],
+				render: (record) => (this.props.places ? this.props.places[record.id] : record.place),
 			});
 		}
 
@@ -46,20 +46,24 @@ class PlayerList extends React.Component {
 			),
 		});
 
-		if (this.props.complete) {
+		if (this.props.success) {
 			let completed = {};
-			this.props.completedParticipants.forEach((participantId) => {
-				completed[participantId] = true;
-			});
+			if (this.props.completedParticipants) {
+				this.props.completedParticipants.forEach((participantId) => {
+					completed[participantId] = true;
+				});
+			}
 			cols.push({
-				key: "complete",
+				key: "success",
 				align: "center",
 				render: (record) => (
 					<Switch
 						key={record.id}
 						id={record.id}
-						defaultChecked={completed[record.participantId]}
-						onChange={(checked) => this.props.onComplete(record, checked)}
+						checkedChildren='Progressed'
+						unCheckedChildren='Eliminated'
+						defaultChecked={completed[record.participantId] || record.success}
+						onChange={(checked) => this.props.onSuccess(record, checked)}
 					/>
 				),
 			});
@@ -72,7 +76,6 @@ class PlayerList extends React.Component {
 				render: (record) => (
 					<InputNumber
 						key={record.id}
-						defaultValue={this.props.places[record.id] || 0}
 						onChange={(value) => this.props.onPlace(record, value)}
 					/>
 				),

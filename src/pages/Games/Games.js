@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { InfoCircleOutlined, PlusOutlined } from "@ant-design/icons";
-import { Alert, Space, Button, Popover, message, Spin } from "antd";
+import { Alert, Space, Button, Popover, Tag, Spin, message } from "antd";
 import PageSurround from "../../components/PageSurround";
 import DataTable from "../../components/DataTable";
 import DeleteButton from "../../components/DeleteButton";
@@ -60,14 +60,17 @@ class Games extends React.Component {
 		const { error, isLoaded, games } = this.state;
 		const pageBreadcrumb = ["Games"];
 		const title = "Games";
+		console.log(this.props);
 		const cols = [
 			{
 				title: "ID",
 				dataIndex: "id",
+				align: "center",
 			},
 			{
 				title: "Date",
 				dataIndex: "date_played",
+				align: "center",
 				render: (val) => <Moment format="DD/MM/YYYY">{val}</Moment>,
 				sorter: (a, b) => {
 					return a.date_played.localeCompare(b.date_played);
@@ -77,11 +80,13 @@ class Games extends React.Component {
 			{
 				title: "Number",
 				dataIndex: "game_number",
+				align: "center",
 				sorter: (a, b) => a.game_number - b.game_number,
 			},
 			{
 				title: "Stake",
 				dataIndex: "stake",
+				align: "center",
 				render: (val) => (
 					<CurrencyFormat value={val / 100} displayType="text" prefix="£" />
 				),
@@ -89,6 +94,7 @@ class Games extends React.Component {
 			{
 				title: "Players",
 				key: "participants",
+				align: "center",
 				render: (record) => (
 					<Popover
 						placement="top"
@@ -106,7 +112,19 @@ class Games extends React.Component {
 			{
 				title: "Tables",
 				key: "tables",
+				align: "center",
 				render: (record) => record.tables.length,
+			},
+			{
+				title: "Status",
+				key: "status",
+				align: "center",
+				render: (record) =>
+					record.complete ? (
+						<Tag color="success">Complete</Tag>
+					) : (
+						<Tag color="warning">Incomplete</Tag>
+					),
 			},
 			{
 				key: "edit",
@@ -139,7 +157,7 @@ class Games extends React.Component {
 					pageBreadcrumb={pageBreadcrumb}
 					pageTitle={title}
 					extra={[
-						<Link to="/games/add" key='addlink'>
+						<Link to="/games/add" key="addlink">
 							<Button icon={<PlusOutlined />}>Create Game</Button>
 						</Link>,
 					]}

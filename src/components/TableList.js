@@ -23,13 +23,13 @@ class TableList extends React.Component {
 						let tablePlayers = [];
 						let otherPlayers = [];
 						let players = [...this.props.playerData];
-						console.log(players);
 						players.forEach((player) => {
 							let added = false;
 							table.participants.forEach((participant) => {
 								if (participant.game_participant === player.participantId) {
 									let newPlayer = { ...player };
 									newPlayer.tableParticipantId = participant.id;
+									newPlayer.success = participant.success;
 									tablePlayers.push(newPlayer);
 									added = true;
 								}
@@ -47,9 +47,9 @@ class TableList extends React.Component {
 									label={table.designation}
 									add={this.props.add}
 									delete={this.props.delete}
-									complete={this.props.complete}
+									success={table.designation === 'Final' ? false : true}
 									completedParticipants={this.props.completedParticipants}
-									onComplete={this.props.onComplete}
+									onSuccess={(player, isComplete) => this.props.onSuccess(player, isComplete, table)}
 									addPlayer={(playerId) => {
 										let participantId;
 										players.forEach((player) => {

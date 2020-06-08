@@ -260,8 +260,8 @@ class AddGame extends React.Component {
 	}
 
 	render() {
-		let pageBreadcrumb = [{ name: "Games", link: "/games" }, "Add Game"];
-		let title = "Add Game";
+		let pageBreadcrumb = [{ name: "Games", link: "/games" }, "Create Game"];
+		let title = "Create Game";
 
 		return (
 			<PageSurround

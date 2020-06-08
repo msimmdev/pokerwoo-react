@@ -1,19 +1,32 @@
 import React from "react";
 import { Switch, Route } from "react-router-dom";
-import { Players, Games, Dashboard, AddPlayer, EditPlayer, Profile, AddGame, GameDetail, EditGame, CompleteGame } from "./pages";
+import {
+	Players,
+	Games,
+	Dashboard,
+	AddPlayer,
+	EditPlayer,
+	Profile,
+	AddGame,
+	GameDetail,
+	EditGame,
+	CompleteGame,
+	Payments,
+	AddPayment,
+} from "./pages";
 
 const routes = [
 	{
-		path: '/players/add',
-		component: AddPlayer
+		path: "/players/add",
+		component: AddPlayer,
 	},
 	{
-		path: '/players/edit/:playerid',
-		component: EditPlayer
+		path: "/players/edit/:playerid",
+		component: EditPlayer,
 	},
 	{
-		path: '/players/:playerid',
-		component: Profile
+		path: "/players/:playerid",
+		component: Profile,
 	},
 	{
 		path: "/players",
@@ -32,12 +45,20 @@ const routes = [
 		component: CompleteGame,
 	},
 	{
-		path: '/games/add',
-		component: AddGame
+		path: "/games/add",
+		component: AddGame,
 	},
 	{
 		path: "/games",
 		component: Games,
+	},
+	{
+		path: "/payments/add",
+		component: AddPayment,
+	},
+	{
+		path: "/payments",
+		component: Payments,
 	},
 	{
 		path: "/",
@@ -47,21 +68,29 @@ const routes = [
 
 function RouteWithSubRoutes(route) {
 	return (
-	  <Route
-		path={route.path}
-		render={props => (
-		  // pass the sub-routes down to keep nesting
-		  <route.component {...props} routes={route.routes} />
-		)}
-	  />
+		<Route
+			path={route.path}
+			render={(routeProps) => (
+				// pass the sub-routes down to keep nesting
+				<route.component
+					profileData={route.profileData}
+					{...routeProps}
+					routes={route.routes}
+				/>
+			)}
+		/>
 	);
-  }
+}
 
-export default function Routes() {
+export default function Routes(props) {
 	return (
 		<Switch>
 			{routes.map((route, i) => (
-				<RouteWithSubRoutes key={i} {...route} />
+				<RouteWithSubRoutes
+					profileData={props.profileData}
+					key={i}
+					{...route}
+				/>
 			))}
 		</Switch>
 	);

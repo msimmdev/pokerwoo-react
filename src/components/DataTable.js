@@ -1,14 +1,8 @@
 import React from "react";
 
-import {
-	Table,
-	Space,
-	Button,
-	Input,
-} from "antd";
+import { Table, Space, Button, Input } from "antd";
 import Highlighter from "react-highlight-words";
 import { SearchOutlined } from "@ant-design/icons";
-
 
 class DataTable extends React.Component {
 	constructor(props) {
@@ -19,7 +13,7 @@ class DataTable extends React.Component {
 		};
 	}
 
-	getColumnSearchProps = (dataIndex, Container) => ({
+	getColumnSearchProps = (dataIndex, Container, containerData) => ({
 		filterDropdown: ({
 			setSelectedKeys,
 			selectedKeys,
@@ -77,17 +71,17 @@ class DataTable extends React.Component {
 		},
 		render: (text, data) =>
 			this.state.searchedColumn === dataIndex ? (
-				<Container data={data}>
-				<Highlighter
-					highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-					searchWords={[this.state.searchText]}
-					autoEscape
-					textToHighlight={text.toString()}
-				/>
+				<Container data={containerData ? containerData(data) : data}>
+					<Highlighter
+						highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+						searchWords={[this.state.searchText]}
+						autoEscape
+						textToHighlight={text.toString()}
+					/>
 				</Container>
 			) : (
-				<Container data={data}>
-				{text}
+				<Container data={containerData ? containerData(data) : data}>
+					{text}
 				</Container>
 			),
 	});
@@ -106,13 +100,20 @@ class DataTable extends React.Component {
 	};
 
 	render() {
-        let cols = [];
-        this.props.columns.forEach(element => {
-            if (element.searchable) {
-                element = { ...element, ...this.getColumnSearchProps(element.searchable, element.container)};
-            }
-            cols.push(element);
-        });
+		let cols = [];
+		this.props.columns.forEach((element) => {
+			if (element.searchable) {
+				element = {
+					...element,
+					...this.getColumnSearchProps(
+						element.searchable,
+						element.container,
+						element.containerData
+					),
+				};
+			}
+			cols.push(element);
+		});
 		return (
 			<Table
 				loading={this.props.loading}
@@ -120,7 +121,6 @@ class DataTable extends React.Component {
 				columns={cols}
 				rowKey={this.props.rowKey}
 				bordered={this.props.bordered}
-				//rowSelection={{}}
 			/>
 		);
 	}

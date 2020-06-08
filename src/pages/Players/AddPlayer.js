@@ -16,11 +16,11 @@ class AddPlayer extends React.Component {
 
 	onSubmit(values) {
 		this.setState({ isSaving: true });
-		new RestApi('/players/players/').create({
+		new RestApi("/players/players/").create({
 			data: values,
 			onRes: (res) => {
 				if (res.status !== 201) {
-					return Promise.reject(new Error('Unable to create player.'));
+					return Promise.reject(new Error("Unable to create player."));
 				}
 				return res;
 			},
@@ -41,11 +41,18 @@ class AddPlayer extends React.Component {
 	}
 
 	render() {
-		let pageBreadcrumb = [{ name: "Players", link: "/players" }, "Add Player"];
-		let title = "Add Player";
+		let pageBreadcrumb = [
+			{ name: "Players", link: "/players" },
+			"Create Player",
+		];
+		let title = "Create Player";
 
 		return (
-			<PageSurround pageBreadcrumb={pageBreadcrumb} pageTitle={title} history={this.props.history}>
+			<PageSurround
+				pageBreadcrumb={pageBreadcrumb}
+				pageTitle={title}
+				history={this.props.history}
+			>
 				<PlayerForm
 					formRef={this.formRef}
 					onSubmit={this.onSubmit}

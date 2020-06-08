@@ -9,16 +9,27 @@ import {
 	PlayerList,
 } from "../../components";
 import RestApi from "../../utils/RestApi";
-import { Spin, Alert, Button, Row, Col, Descriptions, message } from "antd";
+import {
+	Spin,
+	Alert,
+	Button,
+	Row,
+	Col,
+	Descriptions,
+	Tag,
+	message,
+} from "antd";
 import { EditOutlined, PlayCircleOutlined } from "@ant-design/icons";
 
 class GameDetail extends React.Component {
 	constructor(props) {
 		super(props);
+		this.id = props.match.params.gameid;
 		this.addPlayerToGame = this.addPlayerToGame.bind(this);
 		this.removePlayerFromGame = this.removePlayerFromGame.bind(this);
 		this.addPlayerToTable = this.addPlayerToTable.bind(this);
 		this.removePlayerFromTable = this.removePlayerFromTable.bind(this);
+		this.onSuccess = this.onSuccess.bind(this);
 
 		this.state = {
 			isLoaded: false,
@@ -28,7 +39,7 @@ class GameDetail extends React.Component {
 	}
 
 	componentDidMount() {
-		const id = this.props.match.params.gameid;
+		const id = this.id;
 		// Get the basic game details.
 		new RestApi("/poker/games/" + id + "/").retrieve({
 			onRes: (res) => {
@@ -220,6 +231,33 @@ class GameDetail extends React.Component {
 		}
 	}
 
+	onSuccess(player, isSuccess, table) {
+		new RestApi(
+			"/poker/games/" +
+				this.id +
+				"/tables/" +
+				table.id +
+				"/participants/" +
+				player.tableParticipantId +
+				"/"
+		).partialUpdate({
+			data: {
+				success: isSuccess,
+			},
+			onRes: (res) => {
+				if (res.status !== 200) {
+					return Promise.reject(
+						new Error("There was a problem updating the table participant")
+					);
+				}
+				return res;
+			},
+			onError: (error) => {
+				message.error(error.message);
+			},
+		});
+	}
+
 	render() {
 		let pageBreadcrumb = [{ name: "Games", link: "/games" }, "Game Detail"];
 		let title = "Game Detail";
@@ -244,36 +282,43 @@ class GameDetail extends React.Component {
 				</PageSurround>
 			);
 		} else {
+			let extraButtons = [
+				<DeleteButton
+					key="deletebutton"
+					id={this.state.gameData.id}
+					resourse={"/poker/games/" + this.state.gameData.id + "/"}
+					onRes={() => {
+						message.success("Game has been deleted");
+						this.props.history.push("/games");
+					}}
+					confirmMessage="Are you sure you want to delete this game?"
+				>
+					Delete Game
+				</DeleteButton>,
+				<Link key="editlink" to={"/games/edit/" + this.state.gameData.id}>
+					<Button icon={<EditOutlined />}>Edit Game</Button>
+				</Link>,
+			];
+
+			if (!this.state.gameData.complete) {
+				extraButtons.push(
+					<Link
+						key="completelink"
+						to={"/games/complete/" + this.state.gameData.id}
+					>
+						<Button type="primary" icon={<PlayCircleOutlined />}>
+							Complete Game
+						</Button>
+					</Link>
+				);
+			}
+
 			return (
 				<PageSurround
 					pageBreadcrumb={pageBreadcrumb}
 					pageTitle={title}
 					history={this.props.history}
-					extra={[
-						<DeleteButton
-							key="deletebutton"
-							id={this.state.gameData.id}
-							resourse={"/poker/games/" + this.state.gameData.id + "/"}
-							onRes={() => {
-								message.success("Game has been deleted");
-								this.props.history.push("/games");
-							}}
-							confirmMessage="Are you sure you want to delete this game?"
-						>
-							Delete Game
-						</DeleteButton>,
-						<Link key="editlink" to={"/games/edit/" + this.state.gameData.id}>
-							<Button icon={<EditOutlined />}>Edit Game</Button>
-						</Link>,
-						<Link
-							key="completelink"
-							to={"/games/complete/" + this.state.gameData.id}
-						>
-							<Button type="primary" icon={<PlayCircleOutlined />}>
-								Complete Game
-							</Button>
-						</Link>,
-					]}
+					extra={extraButtons}
 				>
 					<Row gutter={16}>
 						<Col sm={24} md={12}>
@@ -288,6 +333,7 @@ class GameDetail extends React.Component {
 								}
 								participants={this.state.gameData.participants}
 								playerData={this.state.players}
+								complete={this.state.gameData.complete}
 							/>
 						</Col>
 					</Row>
@@ -298,11 +344,11 @@ class GameDetail extends React.Component {
 							isLoaded={this.state.tablesLoaded}
 							addPlayer={this.addPlayerToTable}
 							removePlayer={this.removePlayerFromTable}
+							onSuccess={this.onSuccess}
 							tableResourse={
 								"/poker/games/" + this.state.gameData.id + "/tables/"
 							}
 							delete={true}
-							complete={false}
 							add={true}
 						/>
 					) : (
@@ -333,6 +379,16 @@ class GameInfo extends React.Component {
 						displayType="text"
 					/>
 				</Descriptions.Item>
+				<Descriptions.Item label="Tables">
+					{this.props.data.tables.length}
+				</Descriptions.Item>
+				<Descriptions.Item label="Status">
+					{this.props.data.complete ? (
+						<Tag color="success">Complete</Tag>
+					) : (
+						<Tag color="warning">Incomplete</Tag>
+					)}
+				</Descriptions.Item>
 			</Descriptions>
 		);
 	}
@@ -347,6 +403,7 @@ class GamePlayerInfo extends React.Component {
 			this.props.participants.forEach((participant) => {
 				if (player.id === participant.player_ref) {
 					player.participantId = participant.id;
+					player.place = participant.place;
 					players.push(player);
 					added = true;
 				}
@@ -355,6 +412,11 @@ class GamePlayerInfo extends React.Component {
 				extraPlayers.push(player);
 			}
 		});
+
+		if (this.props.complete) {
+			players.sort((a, b) => a.place - b.place);
+		}
+
 		return (
 			<PlayerList
 				players={players}
@@ -365,8 +427,9 @@ class GamePlayerInfo extends React.Component {
 				removePlayer={this.props.removePlayer}
 				removeKey="participantId"
 				delete={true}
-				complete={false}
+				success={false}
 				add={true}
+				place={true}
 			/>
 		);
 	}
