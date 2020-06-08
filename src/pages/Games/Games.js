@@ -60,7 +60,6 @@ class Games extends React.Component {
 		const { error, isLoaded, games } = this.state;
 		const pageBreadcrumb = ["Games"];
 		const title = "Games";
-		console.log(this.props);
 		const cols = [
 			{
 				title: "ID",
@@ -227,7 +226,6 @@ class GameParticipantList extends React.Component {
 	render() {
 		if (this.state.isLoaded) {
 			let displayList = [];
-			console.log(this.state);
 			this.state.detailedParticipants.forEach((player) => {
 				displayList.push(
 					<PlayerName key={player.id} data={player}>

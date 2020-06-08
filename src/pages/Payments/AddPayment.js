@@ -19,7 +19,6 @@ class AddPlayer extends React.Component {
 	}
 
 	componentDidMount() {
-		console.log(this.props);
 		new RestApi("/players/players/").retrieve({
 			onRes: (res) => {
 				if (res.status !== 200) {

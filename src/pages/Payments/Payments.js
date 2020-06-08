@@ -99,8 +99,6 @@ class Payments extends React.Component {
 	}
 
 	markPaid(id, status) {
-		console.log(id);
-		console.log(status);
 		let updateData = {};
 		if (status === "paid") {
 			updateData.payment_confirmed = true;
@@ -152,7 +150,6 @@ class Payments extends React.Component {
 		}));
 		let defaultPayee = [];
 		let defaultPayer = [];
-		console.log(this.props.location);
 		if (queryString.parse(this.props.location.search).mine === "payee") {
 			defaultPayee.push(this.props.profileData.id + "");
 		} else if (queryString.parse(this.props.location.search).mine === "payer") {

@@ -280,10 +280,8 @@ class GameForm extends React.Component {
 											.sort((a, b) => parseInt(b) - parseInt(a))
 											.forEach((level) => {
 												let tables = [];
-												console.log(level);
 												this.props.designations[level].forEach(
 													(designation) => {
-														console.log(designation);
 														tables.push(
 															<TableFormSection
 																players={this.state.players}
@@ -293,7 +291,6 @@ class GameForm extends React.Component {
 														);
 													}
 												);
-												console.log(tables);
 												rows.push(
 													<Row gutter={16} key={level}>
 														{tables}
