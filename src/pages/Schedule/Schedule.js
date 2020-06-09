@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Moment from "react-moment";
+import momentRaw from "moment";
 import { Alert, Button, Space, Popover, message } from "antd";
 import {
 	EditOutlined,
@@ -105,13 +106,6 @@ class Schedule extends React.Component {
 
 		const cols = [
 			{
-				title: "ID",
-				dataIndex: "id",
-				key: "id",
-				sorter: (a, b) => a.id - b.id,
-				defaultSortOrder: "descend",
-			},
-			{
 				title: "Suggested By",
 				dataIndex: "createdbyName",
 				key: "createdbyName",
@@ -128,6 +122,8 @@ class Schedule extends React.Component {
 				key: "schedule_date",
 				dataIndex: "schedule_date",
 				align: "center",
+				sorter: (a, b) => new momentRaw(a.date).format('YYYYMMDD').localeCompare(new momentRaw(b.date).format('YYYYMMDD')),
+				defaultSortOrder: "descend",
 				render: (val) => <Moment format="DD/MM/YYYY hh:mm">{val}</Moment>,
 			},
 			{
