@@ -10,6 +10,7 @@ import EditGame from "./Games/EditGame";
 import CompleteGame from "./Games/CompleteGame";
 import Payments from "./Payments/Payments";
 import AddPayment from "./Payments/AddPayment";
+import Schedule from "./Schedule/Schedule";
 
 export {
 	Players,
@@ -24,4 +25,5 @@ export {
 	CompleteGame,
 	Payments,
 	AddPayment,
+	Schedule,
 };

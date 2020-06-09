@@ -157,7 +157,7 @@ class Games extends React.Component {
 					pageTitle={title}
 					extra={[
 						<Link to="/games/add" key="addlink">
-							<Button icon={<PlusOutlined />}>Create Game</Button>
+							<Button type="primary" icon={<PlusOutlined />}>Create Game</Button>
 						</Link>,
 					]}
 				>

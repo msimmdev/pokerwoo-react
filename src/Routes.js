@@ -13,6 +13,7 @@ import {
 	CompleteGame,
 	Payments,
 	AddPayment,
+	Schedule,
 } from "./pages";
 
 const routes = [
@@ -59,6 +60,10 @@ const routes = [
 	{
 		path: "/payments",
 		component: Payments,
+	},
+	{
+		path: "/schedule",
+		component: Schedule,
 	},
 	{
 		path: "/",

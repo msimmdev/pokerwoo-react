@@ -289,7 +289,7 @@ class Payments extends React.Component {
 					pageTitle={title}
 					extra={[
 						<Link key="addpayment" to="/payments/add">
-							<Button icon={<PlusOutlined />}>Create Payment Request</Button>
+							<Button type="primary" icon={<PlusOutlined />}>Create Payment Request</Button>
 						</Link>,
 					]}
 				>
