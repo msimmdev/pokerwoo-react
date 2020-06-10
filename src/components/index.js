@@ -6,6 +6,7 @@ import PlayerForm from "./PlayerForm";
 import PlayerName from "./PlayerName";
 import PlayerList from "./PlayerList";
 import TableList from "./TableList";
+import ScheduleForm from "./ScheduleForm";
 
 export {
 	DataTable,
@@ -16,4 +17,5 @@ export {
 	PlayerName,
 	PlayerList,
 	TableList,
+	ScheduleForm,
 };

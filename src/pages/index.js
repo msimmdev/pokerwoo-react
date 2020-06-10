@@ -11,6 +11,8 @@ import CompleteGame from "./Games/CompleteGame";
 import Payments from "./Payments/Payments";
 import AddPayment from "./Payments/AddPayment";
 import Schedule from "./Schedule/Schedule";
+import AddSchedule from "./Schedule/AddSchedule";
+import EditSchedule from "./Schedule/EditSchedule";
 
 export {
 	Players,
@@ -26,4 +28,6 @@ export {
 	Payments,
 	AddPayment,
 	Schedule,
+	AddSchedule,
+	EditSchedule,
 };

@@ -19,6 +19,7 @@ import RestApi from "../../utils/RestApi";
 class Schedule extends React.Component {
 	constructor(props) {
 		super(props);
+		this.removeSchedule = this.removeSchedule.bind(this);
 		this.state = {
 			error: null,
 			isLoaded: false,
@@ -122,57 +123,66 @@ class Schedule extends React.Component {
 				key: "schedule_date",
 				dataIndex: "schedule_date",
 				align: "center",
-				sorter: (a, b) => new momentRaw(a.date).format('YYYYMMDD').localeCompare(new momentRaw(b.date).format('YYYYMMDD')),
+				sorter: (a, b) =>
+					new momentRaw(a.schedule_date)
+						.format("YYYYMMDD")
+						.localeCompare(new momentRaw(b.schedule_date).format("YYYYMMDD")),
 				defaultSortOrder: "descend",
-				render: (val) => <Moment format="DD/MM/YYYY hh:mm">{val}</Moment>,
+				render: (val) => <Moment format="DD/MM/YYYY HH:mm">{val}</Moment>,
 			},
 			{
 				title: "Confirmed",
 				key: "confirmed",
 				align: "center",
-				render: (record) => (
-					<Popover
-						placement="top"
-						content={
-							<Space direction="vertical">
-								{record.players
-									.filter((item) => item.attendance)
-									.map((pItem) => (
-										<PlayerName key={pItem.id} data={pItem.playerDetail}>
-											{pItem.playerDetail.name}
-										</PlayerName>
-									))}
-							</Space>
-						}
-					>
-						{record.players.filter((item) => item.attendance).length}{" "}
-						<InfoCircleOutlined />
-					</Popover>
-				),
+				render: (record) =>
+					record.players.filter((item) => item.attendance).length > 0 ? (
+						<Popover
+							placement="top"
+							content={
+								<Space direction="vertical">
+									{record.players
+										.filter((item) => item.attendance)
+										.map((pItem) => (
+											<PlayerName key={pItem.id} data={pItem.playerDetail}>
+												{pItem.playerDetail.name}
+											</PlayerName>
+										))}
+								</Space>
+							}
+						>
+							{record.players.filter((item) => item.attendance).length}{" "}
+							<InfoCircleOutlined />
+						</Popover>
+					) : (
+						record.players.filter((item) => item.attendance).length
+					),
 			},
 			{
 				title: "Declined",
 				key: "declined",
 				align: "center",
-				render: (record) => (
-					<Popover
-						placement="top"
-						content={
-							<Space direction="vertical">
-								{record.players
-									.filter((item) => !item.attendance)
-									.map((pItem) => (
-										<PlayerName key={pItem.id} data={pItem.playerDetail}>
-											{pItem.playerDetail.name}
-										</PlayerName>
-									))}
-							</Space>
-						}
-					>
-						{record.players.filter((item) => !item.attendance).length}{" "}
-						<InfoCircleOutlined />
-					</Popover>
-				),
+				render: (record) =>
+					record.players.filter((item) => item.attendance).length > 0 ? (
+						<Popover
+							placement="top"
+							content={
+								<Space direction="vertical">
+									{record.players
+										.filter((item) => !item.attendance)
+										.map((pItem) => (
+											<PlayerName key={pItem.id} data={pItem.playerDetail}>
+												{pItem.playerDetail.name}
+											</PlayerName>
+										))}
+								</Space>
+							}
+						>
+							{record.players.filter((item) => !item.attendance).length}{" "}
+							<InfoCircleOutlined />
+						</Popover>
+					) : (
+						record.players.filter((item) => !item.attendance).length
+					),
 			},
 			{
 				key: "edit",

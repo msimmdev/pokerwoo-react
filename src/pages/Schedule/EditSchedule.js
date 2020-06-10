@@ -1,35 +1,37 @@
 import React from "react";
 import { withRouter } from "react-router-dom";
-import PageSurround from "../../components/PageSurround";
-import PlayerForm from "../../components/PlayerForm";
+import moment from "moment";
+import { PageSurround, ScheduleForm } from "../../components";
 import { message, Spin, Alert } from "antd";
 import RestApi from "../../utils/RestApi";
 
-class EditPlayer extends React.Component {
+class EditSchedule extends React.Component {
 	constructor(props) {
 		super(props);
 		this.formRef = React.createRef();
 		this.onSubmit = this.onSubmit.bind(this);
-		this.id = props.match.params.playerid;
+		this.id = props.match.params.sessionid;
 		this.state = {
 			isLoaded: false,
-			playerData: {},
+			sessionData: {},
 			isSaving: false,
 		};
 	}
 
 	componentDidMount() {
-		new RestApi('/players/players/' + this.id + '/').retrieve({
+		new RestApi('/schedule/sessions/' + this.id + '/').retrieve({
 			onRes: (res) => {
 				if (res.status !== 200) {
-					return Promise.reject(new Error('Unable to retrieve player.'));
+					return Promise.reject(new Error('Unable to retrieve session.'));
 				}
 				return res;
 			},
 			onParse: (result) => {
+				console.log(result);
+				result.schedule_date = moment(result.schedule_date);
 				this.setState({
 					isLoaded: true,
-					playerData: result,
+					sessionData: result,
 				});
 			},
 			onError: (error) => {
@@ -43,11 +45,11 @@ class EditPlayer extends React.Component {
 
 	onSubmit(values) {
 		this.setState({ isSaving: true });
-		new RestApi('/players/players/' + this.id + '/').update({
+		new RestApi('/schedule/sessions/' + this.id + '/').update({
 			data: values,
 			onRes: (res) => {
 				if (res.status !== 200) {
-					return Promise.reject(new Error('Unable to update player.'));
+					return Promise.reject(new Error('Unable to update session.'));
 				}
 				return res;
 			},
@@ -55,8 +57,8 @@ class EditPlayer extends React.Component {
 				this.setState({
 					isSaving: false,
 				});
-				this.props.history.push("/players");
-				message.success("Player has been updated");
+				this.props.history.push("/schedule");
+				message.success("Session has been updated");
 			},
 			onError: (error) => {
 				this.setState({
@@ -68,8 +70,8 @@ class EditPlayer extends React.Component {
 	}
 
 	render() {
-		let pageBreadcrumb = [{ name: "Players", link: "/players" }, "Edit Player"];
-		let title = "Edit Player";
+		let pageBreadcrumb = [{ name: "Schedule", link: "/schedule" }, "Edit Session"];
+		let title = "Edit Session";
 
 		if (!this.state.isLoaded) {
 			return (
@@ -98,11 +100,11 @@ class EditPlayer extends React.Component {
 					pageTitle={title}
 					history={this.props.history}
 				>
-					<PlayerForm
+					<ScheduleForm
 						formRef={this.formRef}
 						onSubmit={this.onSubmit}
 						isSaving={this.state.isSaving}
-						initialValues={this.state.playerData}
+						initialValues={this.state.sessionData}
 					/>
 				</PageSurround>
 			);
@@ -110,4 +112,4 @@ class EditPlayer extends React.Component {
 	}
 }
 
-export default withRouter(EditPlayer);
+export default withRouter(EditSchedule);

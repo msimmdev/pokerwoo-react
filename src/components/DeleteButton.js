@@ -19,8 +19,12 @@ class DeleteButton extends React.Component {
 		this.setState({ loading: true });
 		new RestApi(this.resourse).delete({
 			onRes: (res) => {
-				this.setState({ loading: false });
-				return this.onRes(res, this.id);
+				if (res.status === 204) {
+					this.setState({ loading: false });
+					return this.onRes(res, this.id);
+				} else {
+					return Promise.reject(new Error("Unable to delete"));
+				}
 			},
 			onError: (error) => {
 				message.error(error.message);

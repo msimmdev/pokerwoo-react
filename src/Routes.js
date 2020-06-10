@@ -14,6 +14,8 @@ import {
 	Payments,
 	AddPayment,
 	Schedule,
+	AddSchedule,
+	EditSchedule,
 } from "./pages";
 
 const routes = [
@@ -60,6 +62,14 @@ const routes = [
 	{
 		path: "/payments",
 		component: Payments,
+	},
+	{
+		path: "/schedule/edit/:sessionid",
+		component: EditSchedule,
+	},
+	{
+		path: "/schedule/add",
+		component: AddSchedule,
 	},
 	{
 		path: "/schedule",
