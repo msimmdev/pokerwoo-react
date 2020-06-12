@@ -12,6 +12,8 @@ import {
 	Space,
 	Button,
 	Typography,
+	Calendar,
+	Badge,
 	message,
 } from "antd";
 import { PageSurround, PlayerName } from "../components";
@@ -87,16 +89,29 @@ class Dashboard extends React.Component {
 							<NextSession
 								profileData={this.props.profileData}
 								players={this.state.players}
+								history={this.props.history}
 							/>
 						</Col>
 						<Col sm={24} md={12}>
-							<Card title="Payment Overview" />
+							<PaymentOverview
+								profileData={this.props.profileData}
+								players={this.state.players}
+								history={this.props.history}
+							/>
 						</Col>
 						<Col sm={24} md={12}>
-							<Card title="Game Statistics" />
+							<GameStatistics
+								profileData={this.props.profileData}
+								players={this.state.players}
+								history={this.props.history}
+							/>
 						</Col>
 						<Col sm={24} md={12}>
-							<Card title="Recent Games" />
+							<GameCalendar
+								profileData={this.props.profileData}
+								players={this.state.players}
+								history={this.props.history}
+							/>
 						</Col>
 					</Row>
 				</PageSurround>
@@ -280,7 +295,10 @@ class NextSession extends React.Component {
 									<Statistic
 										title="The next scheduled session is at"
 										value={moment(this.state.sessionData.schedule_date).format(
-											"DD/MM/YYYY HH:mm"
+											"DD/MM/YYYY"
+										)}
+										suffix={moment(this.state.sessionData.schedule_date).format(
+											"HH:mm"
 										)}
 									/>
 								</Col>
@@ -337,6 +355,283 @@ class NextSession extends React.Component {
 									""
 								)}
 							</Row>
+						</Col>
+					</Row>
+				</Card>
+			);
+		}
+	}
+}
+
+class GameCalendar extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			error: null,
+			isLoaded: false,
+			games: [],
+		};
+	}
+
+	componentDidMount() {
+		new RestApi("/poker/games/").retrieve({
+			onRes: (res) => {
+				if (res.status !== 200) {
+					return Promise.reject(new Error("Unable to retrieve game list."));
+				}
+				return res;
+			},
+			onParse: (result) => {
+				this.setState({
+					isLoaded: true,
+					games: result,
+				});
+			},
+			onError: (error) => {
+				this.setState({
+					isLoaded: true,
+					error,
+				});
+			},
+		});
+	}
+
+	render() {
+		if (this.state.error) {
+			console.error(this.state.error);
+			return <Alert type="error">{this.state.error.message}</Alert>;
+		} else if (!this.state.isLoaded) {
+			return <Spin />;
+		} else {
+			let gameLookup = {};
+			this.state.games.forEach((game) => {
+				gameLookup[game.date_played] = (gameLookup[game.date_played] || 0) + 1;
+			});
+			return (
+				<Card title="Recent Games">
+					<Calendar
+						dateFullCellRender={(date) =>
+							gameLookup[date.format("YYYY-MM-DD")] ? (
+								<Link to={"/games?date_played=" + date.format("YYYY-MM-DD")}>
+									<div className="ant-picker-cell-inner ant-picker-calendar-date">
+										<div className="ant-picker-calendar-date-value">
+											{date.format("DD")}
+										</div>
+										<div className="ant-picker-calendar-date-content">
+											{" "}
+											<Badge
+												status="success"
+												text={gameLookup[date.format("YYYY-MM-DD")] + " Games"}
+											/>
+										</div>
+									</div>
+								</Link>
+							) : (
+								<div className="ant-picker-cell-inner ant-picker-calendar-date">
+									<div className="ant-picker-calendar-date-value">
+										{date.format("DD")}
+									</div>
+									<div className="ant-picker-calendar-date-content"></div>
+								</div>
+							)
+						}
+					/>
+					,
+				</Card>
+			);
+		}
+	}
+}
+
+class GameStatistics extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			error: null,
+			isLoaded: false,
+			games: [],
+		};
+	}
+
+	componentDidMount() {
+		new RestApi(
+			"/poker/player_games/?player_ref=" + this.props.profileData.id
+		).retrieve({
+			onRes: (res) => {
+				if (res.status !== 200) {
+					return Promise.reject(new Error("Unable to retrieve game list."));
+				}
+				return res;
+			},
+			onParse: (result) => {
+				this.setState({
+					isLoaded: true,
+					games: result,
+				});
+			},
+			onError: (error) => {
+				this.setState({
+					isLoaded: true,
+					error,
+				});
+			},
+		});
+	}
+
+	render() {
+		if (this.state.error) {
+			console.error(this.state.error);
+			return <Alert type="error">{this.state.error.message}</Alert>;
+		} else if (!this.state.isLoaded) {
+			return <Spin />;
+		} else {
+			let places = {};
+			let totalPlaces = 0;
+			this.state.games.forEach((game) => {
+				if (game.complete) {
+					game.participants.forEach((participant) => {
+						if (participant.player_ref === this.props.profileData.id) {
+							totalPlaces += participant.place;
+							places[participant.place] = (places[participant.place] || 0) + 1;
+						}
+					});
+				}
+			});
+
+			let gamesPlayed = this.state.games.filter((game) => game.complete).length;
+			let avgPlace = totalPlaces / gamesPlayed;
+			console.log(avgPlace);
+
+			return (
+				<Card title="Game Statistics">
+					<Row gutter={[16, 16]}>
+						<Col span={12}>
+							<Statistic title="Games Played" value={gamesPlayed} />
+						</Col>
+						<Col span={12}>
+							<Statistic title="Games Won" value={places[1] || 0} />
+						</Col>
+						<Col span={12}>
+							<Statistic title="Avg. Placing" value={avgPlace} precision={2} />
+						</Col>
+						<Col span={12}>
+							<Statistic
+								title="Win Rate"
+								suffix="%"
+								precision={2}
+								value={gamesPlayed ? (places[1] / gamesPlayed) * 100 : 0}
+							/>
+						</Col>
+					</Row>
+				</Card>
+			);
+		}
+	}
+}
+
+class PaymentOverview extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			error: null,
+			isLoaded: false,
+			payeePayments: [],
+			payerPayments: [],
+		};
+	}
+
+	componentDidMount() {
+		new RestApi(
+			"/players/payment_obligation/?payee=" + this.props.profileData.id
+		).retrieve({
+			onRes: (res) => {
+				if (res.status !== 200) {
+					return Promise.reject(new Error("Unable to retrieve payee list."));
+				}
+				return res;
+			},
+			onParse: (payeeResult) => {
+				new RestApi(
+					"/players/payment_obligation/?payer=" + this.props.profileData.id
+				).retrieve({
+					onRes: (res) => {
+						if (res.status !== 200) {
+							return Promise.reject(
+								new Error("Unable to retrieve payer list.")
+							);
+						}
+						return res;
+					},
+					onParse: (payerResult) => {
+						this.setState({
+							isLoaded: true,
+							payeePayments: payeeResult,
+							payerPayments: payerResult,
+						});
+					},
+					onError: (error) => {
+						this.setState({
+							isLoaded: true,
+							error,
+						});
+					},
+				});
+			},
+			onError: (error) => {
+				this.setState({
+					isLoaded: true,
+					error,
+				});
+			},
+		});
+	}
+
+	render() {
+		if (this.state.error) {
+			console.error(this.state.error);
+			return <Alert type="error">{this.state.error.message}</Alert>;
+		} else if (!this.state.isLoaded) {
+			return <Spin />;
+		} else {
+			let toPay = 0;
+			let toBePaid = 0;
+			let balance = 0;
+			this.state.payerPayments.forEach((payment) => {
+				balance -= payment.payment_amount;
+				if (!payment.payment_confirmed && !payment.payment_sent) {
+					toPay += payment.payment_amount;
+				}
+			});
+
+			this.state.payeePayments.forEach((payment) => {
+				balance += payment.payment_amount;
+				if (!payment.payment_confirmed && !payment.payment_sent) {
+					toBePaid += payment.payment_amount;
+				}
+			});
+
+			return (
+				<Card title="Payment Overview">
+					<Row gutter={[16, 16]}>
+						<Col span={12}>
+							<Statistic title="Total to pay" prefix="£" value={toPay / 100} />
+							<Link to="/payments?mine=payer">View Breakdown</Link>
+						</Col>
+						<Col span={12}>
+							<Statistic
+								title="Total to be paid"
+								prefix="£"
+								value={toBePaid / 100}
+							/>
+							<Link to="/payments?mine=payee">View Breakdown</Link>
+						</Col>
+						<Col span={12}></Col>
+						<Col span={12}>
+							<Statistic
+								title="Total balance"
+								prefix="£"
+								value={balance / 100}
+							/>
 						</Col>
 					</Row>
 				</Card>

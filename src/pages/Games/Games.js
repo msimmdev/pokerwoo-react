@@ -22,7 +22,7 @@ class Games extends React.Component {
 	}
 
 	componentDidMount() {
-		new RestApi("/poker/games/").retrieve({
+		new RestApi("/poker/games/" + this.props.history.location.search).retrieve({
 			onRes: (res) => {
 				if (res.status !== 200) {
 					return Promise.reject(new Error("Unable to retrieve game list."));
@@ -77,7 +77,7 @@ class Games extends React.Component {
 				defaultSortOrder: "descend",
 			},
 			{
-				title: "Number",
+				title: "No.",
 				dataIndex: "game_number",
 				align: "center",
 				sorter: (a, b) => a.game_number - b.game_number,
@@ -86,6 +86,7 @@ class Games extends React.Component {
 				title: "Stake",
 				dataIndex: "stake",
 				align: "center",
+				responsive: ["md"],
 				render: (val) => (
 					<CurrencyFormat value={val / 100} displayType="text" prefix="£" />
 				),
@@ -94,6 +95,7 @@ class Games extends React.Component {
 				title: "Players",
 				key: "participants",
 				align: "center",
+				responsive: ["md"],
 				render: (record) => (
 					<Popover
 						placement="top"
@@ -112,12 +114,14 @@ class Games extends React.Component {
 				title: "Tables",
 				key: "tables",
 				align: "center",
+				responsive: ["md"],
 				render: (record) => record.tables.length,
 			},
 			{
 				title: "Status",
 				key: "status",
 				align: "center",
+				responsive: ["md"],
 				render: (record) =>
 					record.complete ? (
 						<Tag color="success">Complete</Tag>

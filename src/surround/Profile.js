@@ -25,7 +25,7 @@ class Profile extends React.Component {
 			</Menu>
 		);
 		return (
-			<Dropdown overlay={menu}>
+			<Dropdown overlay={menu} placement="bottomRight">
 				<Avatar size="large" src={this.props.profileData.avatar} />
 			</Dropdown>
 		);

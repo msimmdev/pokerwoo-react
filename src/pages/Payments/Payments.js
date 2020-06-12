@@ -191,6 +191,7 @@ class Payments extends React.Component {
 				title: "Game",
 				dataIndex: "game_ref",
 				key: "game_ref",
+				responsive: ["md"],
 				render: (gameId) => {
 					let gList = this.state.games.filter((item) => item.id === gameId);
 					let game = gList[0];
@@ -214,6 +215,7 @@ class Payments extends React.Component {
 			{
 				title: "Status",
 				key: "status",
+				responsive: ["md"],
 				render: (record) =>
 					record.payment_confirmed ? (
 						<Tag color="success">Paid</Tag>

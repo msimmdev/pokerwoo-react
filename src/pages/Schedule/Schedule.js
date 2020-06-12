@@ -110,6 +110,7 @@ class Schedule extends React.Component {
 				title: "Suggested By",
 				dataIndex: "createdbyName",
 				key: "createdbyName",
+				responsive: ["md"],
 				sorter: (a, b) => a.createdbyName.localeCompare(b.createdbyName),
 				filters: playerFilter,
 				onFilter: (value, record) =>
@@ -134,6 +135,7 @@ class Schedule extends React.Component {
 				title: "Confirmed",
 				key: "confirmed",
 				align: "center",
+				responsive: ["md"],
 				render: (record) =>
 					record.players.filter((item) => item.attendance).length > 0 ? (
 						<Popover
@@ -161,8 +163,9 @@ class Schedule extends React.Component {
 				title: "Declined",
 				key: "declined",
 				align: "center",
+				responsive: ["md"],
 				render: (record) =>
-					record.players.filter((item) => item.attendance).length > 0 ? (
+					record.players.filter((item) => !item.attendance).length > 0 ? (
 						<Popover
 							placement="top"
 							content={
