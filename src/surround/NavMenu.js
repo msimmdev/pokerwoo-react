@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 
 class NavMenu extends React.Component {
 	render() {
-		console.log(this.props.selected);
 		return (
 			<Menu
 				mode="horizontal"

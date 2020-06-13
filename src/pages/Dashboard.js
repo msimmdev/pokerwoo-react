@@ -266,7 +266,6 @@ class NextSession extends React.Component {
 
 	render() {
 		if (this.state.error) {
-			console.error(this.state.error);
 			return <Alert type="error">{this.state.error.message}</Alert>;
 		} else if (!this.state.isLoaded) {
 			return <Spin />;
@@ -400,7 +399,6 @@ class GameCalendar extends React.Component {
 
 	render() {
 		if (this.state.error) {
-			console.error(this.state.error);
 			return <Alert type="error">{this.state.error.message}</Alert>;
 		} else if (!this.state.isLoaded) {
 			return <Spin />;
@@ -482,7 +480,6 @@ class GameStatistics extends React.Component {
 
 	render() {
 		if (this.state.error) {
-			console.error(this.state.error);
 			return <Alert type="error">{this.state.error.message}</Alert>;
 		} else if (!this.state.isLoaded) {
 			return <Spin />;
@@ -502,7 +499,6 @@ class GameStatistics extends React.Component {
 
 			let gamesPlayed = this.state.games.filter((game) => game.complete).length;
 			let avgPlace = totalPlaces / gamesPlayed;
-			console.log(avgPlace);
 
 			return (
 				<Card title="Game Statistics">
@@ -590,7 +586,6 @@ class PaymentOverview extends React.Component {
 
 	render() {
 		if (this.state.error) {
-			console.error(this.state.error);
 			return <Alert type="error">{this.state.error.message}</Alert>;
 		} else if (!this.state.isLoaded) {
 			return <Spin />;

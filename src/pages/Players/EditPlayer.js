@@ -8,7 +8,6 @@ import RestApi from "../../utils/RestApi";
 class EditPlayer extends React.Component {
 	constructor(props) {
 		super(props);
-		console.log(props);
 		this.formRef = React.createRef();
 		this.onSubmit = this.onSubmit.bind(this);
 		this.id = props.playerId || props.match.params.playerid;

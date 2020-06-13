@@ -90,14 +90,16 @@ function RouteWithSubRoutes(route) {
 	return (
 		<Route
 			path={route.path}
-			render={(routeProps) => (
+			render={(routeProps) => {
 				// pass the sub-routes down to keep nesting
-				<route.component
-					profileData={route.profileData}
-					{...routeProps}
-					routes={route.routes}
-				/>
-			)}
+				return (
+					<route.component
+						profileData={route.profileData}
+						{...routeProps}
+						routes={route.routes}
+					/>
+				);
+			}}
 		/>
 	);
 }

@@ -214,7 +214,6 @@ class Schedule extends React.Component {
 				</PageSurround>
 			);
 		} else {
-			console.log(sessions);
 			return (
 				<PageSurround
 					pageBreadcrumb={pageBreadcrumb}

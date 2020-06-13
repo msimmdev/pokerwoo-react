@@ -27,7 +27,6 @@ class EditSchedule extends React.Component {
 				return res;
 			},
 			onParse: (result) => {
-				console.log(result);
 				result.schedule_date = moment(result.schedule_date);
 				this.setState({
 					isLoaded: true,
