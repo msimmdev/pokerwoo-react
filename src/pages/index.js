@@ -13,6 +13,7 @@ import AddPayment from "./Payments/AddPayment";
 import Schedule from "./Schedule/Schedule";
 import AddSchedule from "./Schedule/AddSchedule";
 import EditSchedule from "./Schedule/EditSchedule";
+import EditProfile from "./Players/EditProfile";
 
 export {
 	Players,
@@ -30,4 +31,5 @@ export {
 	Schedule,
 	AddSchedule,
 	EditSchedule,
+	EditProfile,
 };

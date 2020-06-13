@@ -15,7 +15,7 @@ class Profile extends React.Component {
 				</Menu.Item>
 				<Menu.Divider />
 				<Menu.Item>
-					<Link to={"/players/edit/" + this.props.profileData.id}>
+					<Link to={"/players/profile"}>
 						Edit Profile
 					</Link>
 				</Menu.Item>

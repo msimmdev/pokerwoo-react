@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { Layout, Row, Col, Result, Spin } from "antd";
 import NavMenu from "./surround/NavMenu";
 import Profile from "./surround/Profile";
@@ -81,7 +81,23 @@ class App extends React.Component {
 										<Icon className="main-icon" />
 									</Col>
 									<Col xxl={19} xl={18} lg={17} md={16} sm={20} xs={17}>
-										<NavMenu />
+										<Switch>
+											<Route path="/games">
+												<NavMenu selected="/games" />
+											</Route>
+											<Route path="/payments">
+												<NavMenu selected="/payments" />
+											</Route>
+											<Route path="/players">
+												<NavMenu selected="/players" />
+											</Route>
+											<Route path="/schedule">
+												<NavMenu selected="/schedule" />
+											</Route>
+											<Route path="/">
+												<NavMenu selected="/" />
+											</Route>
+										</Switch>
 									</Col>
 									<Col xxl={1} xl={1} lg={1} md={1} sm={1} xs={3}>
 										<Profile profileData={this.state.profileData} />

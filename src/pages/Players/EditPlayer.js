@@ -8,9 +8,10 @@ import RestApi from "../../utils/RestApi";
 class EditPlayer extends React.Component {
 	constructor(props) {
 		super(props);
+		console.log(props);
 		this.formRef = React.createRef();
 		this.onSubmit = this.onSubmit.bind(this);
-		this.id = props.match.params.playerid;
+		this.id = props.playerId || props.match.params.playerid;
 		this.state = {
 			isLoaded: false,
 			playerData: {},
@@ -27,6 +28,15 @@ class EditPlayer extends React.Component {
 				return res;
 			},
 			onParse: (result) => {
+				if (result.avatar) {
+					result.avatar = [ {
+						thumburl: result.avatar,
+						url: result.avatar,
+						uid: 1,
+					} ];
+				} else {
+					result.avatar = [];
+				}
 				this.setState({
 					isLoaded: true,
 					playerData: result,
@@ -43,6 +53,12 @@ class EditPlayer extends React.Component {
 
 	onSubmit(values) {
 		this.setState({ isSaving: true });
+		if (values.avatar.length > 0) {
+			let imgUrl = values.avatar[0].response.url;
+			values.avatar = imgUrl;
+		} else {
+			delete values.avatar;
+		}
 		new RestApi('/players/players/' + this.id + '/').update({
 			data: values,
 			onRes: (res) => {

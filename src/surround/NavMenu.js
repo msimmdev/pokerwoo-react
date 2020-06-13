@@ -4,14 +4,11 @@ import { Link } from "react-router-dom";
 
 class NavMenu extends React.Component {
 	render() {
-		let path = window.location.pathname;
-		if (path !== "/") {
-			path = window.location.pathname.match(/^\/\w+/)[0];
-		}
+		console.log(this.props.selected);
 		return (
 			<Menu
 				mode="horizontal"
-				defaultSelectedKeys={[path]}
+				selectedKeys={[this.props.selected]}
 				style={{ height: "64px", border: "0" }}
 			>
 				<Menu.Item key="/">

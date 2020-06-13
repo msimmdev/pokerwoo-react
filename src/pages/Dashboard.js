@@ -18,6 +18,7 @@ import {
 } from "antd";
 import { PageSurround, PlayerName } from "../components";
 import RestApi from "../utils/RestApi";
+import { PlusOutlined, EditOutlined } from "@ant-design/icons";
 
 const { Paragraph } = Typography;
 
@@ -83,6 +84,7 @@ class Dashboard extends React.Component {
 					pageBreadcrumb={pageBreadcrumb}
 					pageTitle={title}
 					history={this.props.history}
+					extra={[<Link key="editprofile" to='/players/profile'><Button icon={<EditOutlined />}>Edit Profile</Button></Link>]}
 				>
 					<Row gutter={[16, 16]}>
 						<Col sm={24} md={12}>
@@ -408,7 +410,7 @@ class GameCalendar extends React.Component {
 				gameLookup[game.date_played] = (gameLookup[game.date_played] || 0) + 1;
 			});
 			return (
-				<Card title="Recent Games">
+				<Card title="Recent Games" extra={[<Link key="creategame" to='/games/add'><Button icon={<PlusOutlined />}>Create Game</Button></Link>]}>
 					<Calendar
 						dateFullCellRender={(date) =>
 							gameLookup[date.format("YYYY-MM-DD")] ? (

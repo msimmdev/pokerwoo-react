@@ -3,6 +3,21 @@ import { Form, Input, Button, Upload, Switch } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 class PlayerForm extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			showUpload: (props.initialValues.avatar.length === 0 ? true : false),
+		};
+	}
+
+	normFile(e) {
+		if (Array.isArray(e)) {
+			return e;
+		}
+
+		return e && e.fileList;
+	}
+
 	render() {
 		return (
 			<Form
@@ -53,14 +68,19 @@ class PlayerForm extends React.Component {
 						name="avatarupload"
 						listType="picture-card"
 						className="avatar-uploader"
-						action="http://www.example.com"
+						action="http://localhost:8000/upload/"
 						accept="image/*"
 						multiple={false}
+						withCredentials={true}
+						onRemove={() => this.setState({ showUpload: true })}
+						beforeUpload={() => this.setState({ showUpload: false })}
 					>
-						<div>
-							<PlusOutlined />
-							<div className="ant-upload-text">Upload</div>
-						</div>
+						{this.state.showUpload ? (
+							<div>
+								<PlusOutlined />
+								<div className="ant-upload-text">Upload</div>
+							</div>
+						) : null}
 					</Upload>
 				</Form.Item>
 				<Form.Item

@@ -16,6 +16,7 @@ import {
 	Schedule,
 	AddSchedule,
 	EditSchedule,
+	EditProfile,
 } from "./pages";
 
 const routes = [
@@ -26,6 +27,10 @@ const routes = [
 	{
 		path: "/players/edit/:playerid",
 		component: EditPlayer,
+	},
+	{
+		path: "/players/profile",
+		component: EditProfile,
 	},
 	{
 		path: "/players/:playerid",
