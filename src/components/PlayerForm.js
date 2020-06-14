@@ -68,7 +68,7 @@ class PlayerForm extends React.Component {
 						name="avatarupload"
 						listType="picture-card"
 						className="avatar-uploader"
-						action={process.env.REACT_APP_BASE_API_URL + "/upload/"}
+						action={process.env.REACT_APP_BASE_API_URL + "/upload/avatar/"}
 						accept="image/*"
 						multiple={false}
 						withCredentials={true}
