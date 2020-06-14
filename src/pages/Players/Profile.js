@@ -70,7 +70,16 @@ class Profile extends React.Component {
 			];
 			let title = (
 				<Space>
-					<Avatar size="large" src={this.state.playerData.avatar} />
+					{this.state.playerData.avatar ? (
+						<Avatar size="large" src={this.state.playerData.avatar} />
+					) : (
+						<Avatar
+							size="large"
+							style={{ color: "#ffffff", backgroundColor: "#ff322b" }}
+						>
+							{this.state.playerData.name[0]}
+						</Avatar>
+					)}
 					{this.state.playerData.name}
 				</Space>
 			);

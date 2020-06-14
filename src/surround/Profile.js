@@ -15,18 +15,28 @@ class Profile extends React.Component {
 				</Menu.Item>
 				<Menu.Divider />
 				<Menu.Item>
-					<Link to={"/players/profile"}>
-						Edit Profile
-					</Link>
+					<Link to={"/players/profile"}>Edit Profile</Link>
 				</Menu.Item>
 				<Menu.Item>
-					<a href="/accounts/logout">Sign Out</a>
+					<a href="/accounts/password_change/">Change Password</a>
+				</Menu.Item>
+				<Menu.Item>
+					<a href="/accounts/logout/">Sign Out</a>
 				</Menu.Item>
 			</Menu>
 		);
 		return (
 			<Dropdown overlay={menu} placement="bottomRight">
-				<Avatar size="large" src={this.props.profileData.avatar} />
+				{this.props.profileData.avatar ? (
+					<Avatar size="large" src={this.props.profileData.avatar} />
+				) : (
+					<Avatar
+						size="large"
+						style={{ color: "#ffffff", backgroundColor: "#ff322b" }}
+					>
+						{this.props.profileData.name[0]}
+					</Avatar>
+				)}
 			</Dropdown>
 		);
 	}

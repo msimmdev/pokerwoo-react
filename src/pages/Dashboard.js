@@ -498,7 +498,12 @@ class GameStatistics extends React.Component {
 			});
 
 			let gamesPlayed = this.state.games.filter((game) => game.complete).length;
-			let avgPlace = totalPlaces / gamesPlayed;
+			let avgPlace;
+			if (gamesPlayed === 0) {
+				avgPlace = 0;
+			} else {
+				avgPlace = totalPlaces / gamesPlayed;
+			}
 
 			return (
 				<Card title="Game Statistics">
