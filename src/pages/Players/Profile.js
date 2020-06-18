@@ -71,7 +71,7 @@ class Profile extends React.Component {
 			let title = (
 				<Space>
 					{this.state.playerData.avatar ? (
-						<Avatar size="large" src={this.state.playerData.avatar} />
+						<Avatar size="large" src={this.state.playerData.avatar + "?width=40&height=40"} />
 					) : (
 						<Avatar
 							size="large"

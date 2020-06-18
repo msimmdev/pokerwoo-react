@@ -28,7 +28,7 @@ class Profile extends React.Component {
 		return (
 			<Dropdown overlay={menu} placement="bottomRight">
 				{this.props.profileData.avatar ? (
-					<Avatar size="large" src={this.props.profileData.avatar} />
+					<Avatar size="large" src={this.props.profileData.avatar  + "?width=40&height=40"} />
 				) : (
 					<Avatar
 						size="large"

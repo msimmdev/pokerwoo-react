@@ -8,7 +8,7 @@ class PlayerName extends React.Component {
 			<Link to={"/players/" + this.props.data.id + "/"}>
 				<Space>
 					{this.props.data.avatar ? (
-						<Avatar size="large" src={this.props.data.avatar} />
+						<Avatar size="large" src={this.props.data.avatar + "?width=40&height=40"} />
 					) : (
 						<Avatar
 							size="large"

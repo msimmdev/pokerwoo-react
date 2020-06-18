@@ -28,7 +28,7 @@ class App extends React.Component {
 		new RestApi("/players/active_player/").retrieve({
 			onRes: (res) => {
 				if (res.status === 404) {
-					window.location.href = "http://localhost:8000/accounts/login/"; // TODO Change
+					window.location.href = "/accounts/login/";
 					return Promise.reject(new Error("Unauthenticated"));
 				} else if (res.status !== 200) {
 					return Promise.reject(new Error("Unable to retrieve player."));

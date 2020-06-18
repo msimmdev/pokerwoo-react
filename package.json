@@ -23,7 +23,7 @@
   },
   "scripts": {
     "start": "craco start",
-    "build": "PUBLIC_URL='/static' craco build",
+    "build": "REACT_APP_BASE_API_URL='https://www.pokerwoo.com/api' PUBLIC_URL='https://pokerwoo.s3.eu-west-2.amazonaws.com/' craco build",
     "test": "craco test",
     "eject": "react-scripts eject"
   },
