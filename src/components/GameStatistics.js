@@ -52,8 +52,6 @@ class GameStatistics extends React.Component {
 			return <Alert type="error">{this.state.error.message}</Alert>;
 		} else if (!this.state.isLoaded) {
 			return <Spin />;
-		} else if (this.state.empty) {
-			return <Empty />;
 		} else {
 			return (
 				<Card
@@ -64,6 +62,7 @@ class GameStatistics extends React.Component {
 						</Link>,
 					]}
 				>
+					this.state.empty ? <Empty /> :(
 					<Row gutter={[16, 16]}>
 						<Col span={12}>
 							<Statistic
@@ -130,6 +129,7 @@ class GameStatistics extends React.Component {
 							/>
 						</Col>
 					</Row>
+					)
 				</Card>
 			);
 		}

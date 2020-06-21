@@ -278,7 +278,7 @@ class NextSession extends React.Component {
 					title="Next Session"
 					extra={[
 						<Link key="sessions" to="/schedule/add">
-							<Button icon={<CalendarOutlined />}>Schedule Game</Button>
+							<Button icon={<CalendarOutlined />}>Schedule Session</Button>
 						</Link>,
 					]}
 				>
