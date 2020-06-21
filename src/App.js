@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import { Layout, Row, Col, Result, Spin } from "antd";
 import NavMenu from "./surround/NavMenu";
 import Profile from "./surround/Profile";
@@ -77,8 +77,10 @@ class App extends React.Component {
 										xs={4}
 										style={{ textAlign: "center" }}
 									>
-										<Logo className="main-logo" />
-										<Icon className="main-icon" />
+										<Link to="/">
+											<Logo className="main-logo" />
+											<Icon className="main-icon" />
+										</Link>
 									</Col>
 									<Col xxl={19} xl={18} lg={17} md={16} sm={20} xs={17}>
 										<Switch>
@@ -93,6 +95,9 @@ class App extends React.Component {
 											</Route>
 											<Route path="/schedule">
 												<NavMenu selected="/schedule" />
+											</Route>
+											<Route path="/leaderboards">
+												<NavMenu selected="/leaderboards" />
 											</Route>
 											<Route path="/">
 												<NavMenu selected="/" />

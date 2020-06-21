@@ -16,9 +16,9 @@ import {
 	Badge,
 	message,
 } from "antd";
-import { PageSurround, PlayerName } from "../components";
+import { PageSurround, PlayerName, GameStatistics } from "../components";
 import RestApi from "../utils/RestApi";
-import { PlusOutlined, EditOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, PoundOutlined, CalendarOutlined } from "@ant-design/icons";
 
 const { Paragraph } = Typography;
 
@@ -84,7 +84,11 @@ class Dashboard extends React.Component {
 					pageBreadcrumb={pageBreadcrumb}
 					pageTitle={title}
 					history={this.props.history}
-					extra={[<Link key="editprofile" to='/players/profile'><Button icon={<EditOutlined />}>Edit Profile</Button></Link>]}
+					extra={[
+						<Link key="editprofile" to="/players/profile">
+							<Button icon={<EditOutlined />}>Edit Profile</Button>
+						</Link>,
+					]}
 				>
 					<Row gutter={[16, 16]}>
 						<Col sm={24} md={12}>
@@ -104,7 +108,6 @@ class Dashboard extends React.Component {
 						<Col sm={24} md={12}>
 							<GameStatistics
 								profileData={this.props.profileData}
-								players={this.state.players}
 								history={this.props.history}
 							/>
 						</Col>
@@ -271,12 +274,19 @@ class NextSession extends React.Component {
 			return <Spin />;
 		} else if (this.state.empty) {
 			return (
-				<Card title="Next Session">
+				<Card
+					title="Next Session"
+					extra={[
+						<Link key="sessions" to="/schedule/add">
+							<Button icon={<CalendarOutlined />}>Schedule Game</Button>
+						</Link>,
+					]}
+				>
 					<Paragraph>
 						There are currently no upcoming scheduled sessions.
 					</Paragraph>
 					<Link to="/schedule/add">
-						<Button>Create One</Button>
+						<Button icon={<PlusOutlined />}>Create One</Button>
 					</Link>
 				</Card>
 			);
@@ -288,7 +298,14 @@ class NextSession extends React.Component {
 				}
 			});
 			return (
-				<Card title="Next Session">
+				<Card
+					title="Next Session"
+					extra={[
+						<Link key="sessions" to="/schedule/add">
+							<Button icon={<CalendarOutlined />}>Schedule Game</Button>
+						</Link>,
+					]}
+				>
 					<Row gutter={16}>
 						<Col span={12}>
 							<Row gutter={[0, 16]}>
@@ -408,7 +425,14 @@ class GameCalendar extends React.Component {
 				gameLookup[game.date_played] = (gameLookup[game.date_played] || 0) + 1;
 			});
 			return (
-				<Card title="Recent Games" extra={[<Link key="creategame" to='/games/add'><Button icon={<PlusOutlined />}>Create Game</Button></Link>]}>
+				<Card
+					title="Recent Games"
+					extra={[
+						<Link key="creategame" to="/games/add">
+							<Button icon={<PlusOutlined />}>Create Game</Button>
+						</Link>,
+					]}
+				>
 					<Calendar
 						dateFullCellRender={(date) =>
 							gameLookup[date.format("YYYY-MM-DD")] ? (
@@ -437,95 +461,6 @@ class GameCalendar extends React.Component {
 						}
 					/>
 					,
-				</Card>
-			);
-		}
-	}
-}
-
-class GameStatistics extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			error: null,
-			isLoaded: false,
-			games: [],
-		};
-	}
-
-	componentDidMount() {
-		new RestApi(
-			"/poker/player_games/?player_ref=" + this.props.profileData.id
-		).retrieve({
-			onRes: (res) => {
-				if (res.status !== 200) {
-					return Promise.reject(new Error("Unable to retrieve game list."));
-				}
-				return res;
-			},
-			onParse: (result) => {
-				this.setState({
-					isLoaded: true,
-					games: result,
-				});
-			},
-			onError: (error) => {
-				this.setState({
-					isLoaded: true,
-					error,
-				});
-			},
-		});
-	}
-
-	render() {
-		if (this.state.error) {
-			return <Alert type="error">{this.state.error.message}</Alert>;
-		} else if (!this.state.isLoaded) {
-			return <Spin />;
-		} else {
-			let places = {};
-			let totalPlaces = 0;
-			this.state.games.forEach((game) => {
-				if (game.complete) {
-					game.participants.forEach((participant) => {
-						if (participant.player_ref === this.props.profileData.id) {
-							totalPlaces += participant.place;
-							places[participant.place] = (places[participant.place] || 0) + 1;
-						}
-					});
-				}
-			});
-
-			let gamesPlayed = this.state.games.filter((game) => game.complete).length;
-			let avgPlace;
-			if (gamesPlayed === 0) {
-				avgPlace = 0;
-			} else {
-				avgPlace = totalPlaces / gamesPlayed;
-			}
-
-			return (
-				<Card title="Game Statistics">
-					<Row gutter={[16, 16]}>
-						<Col span={12}>
-							<Statistic title="Games Played" value={gamesPlayed} />
-						</Col>
-						<Col span={12}>
-							<Statistic title="Games Won" value={places[1] || 0} />
-						</Col>
-						<Col span={12}>
-							<Statistic title="Avg. Placing" value={avgPlace} precision={2} />
-						</Col>
-						<Col span={12}>
-							<Statistic
-								title="Win Rate"
-								suffix="%"
-								precision={2}
-								value={gamesPlayed ? (places[1] / gamesPlayed) * 100 : 0}
-							/>
-						</Col>
-					</Row>
 				</Card>
 			);
 		}
@@ -613,7 +548,14 @@ class PaymentOverview extends React.Component {
 			});
 
 			return (
-				<Card title="Payment Overview">
+				<Card
+					title="Payment Overview"
+					extra={[
+						<Link key="leaderboard" to="/payments/add">
+							<Button icon={<PoundOutlined />}>Request Payment</Button>
+						</Link>,
+					]}
+				>
 					<Row gutter={[16, 16]}>
 						<Col span={12}>
 							<Statistic title="Total to pay" prefix="£" value={toPay / 100} />

@@ -25,6 +25,9 @@ class NavMenu extends React.Component {
 				<Menu.Item key="/schedule">
 					<Link to="/schedule">Schedule</Link>
 				</Menu.Item>
+				<Menu.Item key="/leaderboards">
+					<Link to="/leaderboards">Leaderboards</Link>
+				</Menu.Item>
 			</Menu>
 		);
 	}

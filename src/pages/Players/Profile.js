@@ -1,6 +1,6 @@
 import React from "react";
 import { withRouter } from "react-router-dom";
-import PageSurround from "../../components/PageSurround";
+import { PageSurround, GameStatistics, DeleteButton } from "../../components";
 import {
 	Spin,
 	Descriptions,
@@ -15,7 +15,6 @@ import {
 import { EditOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import RestApi from "../../utils/RestApi";
-import DeleteButton from "../../components/DeleteButton";
 
 class Profile extends React.Component {
 	constructor(props) {
@@ -71,7 +70,10 @@ class Profile extends React.Component {
 			let title = (
 				<Space>
 					{this.state.playerData.avatar ? (
-						<Avatar size="large" src={this.state.playerData.avatar + "?width=40&height=40"} />
+						<Avatar
+							size="large"
+							src={this.state.playerData.avatar + "?width=40&height=40"}
+						/>
 					) : (
 						<Avatar
 							size="large"
@@ -156,6 +158,14 @@ class Profile extends React.Component {
 				>
 					<Row gutter={16}>
 						<Col sm={24} md={12}>
+							<img
+								src={this.state.playerData.avatar + "?width=500"}
+								width="100%"
+								style={{ padding: "30px" }}
+								alt="Avatar"
+							/>
+						</Col>
+						<Col sm={24} md={12}>
 							<Descriptions
 								bordered
 								title="Player Info"
@@ -179,9 +189,14 @@ class Profile extends React.Component {
 									)}
 								</Descriptions.Item>
 							</Descriptions>
+							<br />
+							{hasPaymentInfo ? paymentDescriptions : ""}
 						</Col>
 						<Col sm={24} md={12}>
-							{hasPaymentInfo ? paymentDescriptions : ""}
+						<GameStatistics
+								profileData={this.props.profileData}
+								history={this.props.history}
+							/>
 						</Col>
 					</Row>
 				</PageSurround>

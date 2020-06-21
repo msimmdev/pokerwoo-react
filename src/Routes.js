@@ -17,6 +17,7 @@ import {
 	AddSchedule,
 	EditSchedule,
 	EditProfile,
+	LeaderBoards,
 } from "./pages";
 
 const routes = [
@@ -79,6 +80,10 @@ const routes = [
 	{
 		path: "/schedule",
 		component: Schedule,
+	},
+	{
+		path: "/leaderboards",
+		component: LeaderBoards,
 	},
 	{
 		path: "/",

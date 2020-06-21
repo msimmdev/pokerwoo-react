@@ -121,6 +121,7 @@ class DataTable extends React.Component {
 				columns={cols}
 				rowKey={this.props.rowKey}
 				bordered={this.props.bordered}
+				showSorterTooltip={this.props.showSorterTooltip}
 			/>
 		);
 	}
