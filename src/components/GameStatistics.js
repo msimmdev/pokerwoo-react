@@ -62,74 +62,79 @@ class GameStatistics extends React.Component {
 						</Link>,
 					]}
 				>
-					this.state.empty ? <Empty /> :(
-					<Row gutter={[16, 16]}>
-						<Col span={12}>
-							<Statistic
-								title="Games Played"
-								value={this.state.stats.games_played}
-							/>
-						</Col>
-						<Col span={12}>
-							<Statistic title="Score" value={this.state.stats.score} />
-						</Col>
-						<Col span={12}>
-							<Statistic title="Games Won" value={this.state.stats.games_won} />
-						</Col>
-						<Col span={12}>
-							<Statistic
-								title="Times Placed"
-								value={this.state.stats.times_placed}
-							/>
-						</Col>
-						<Col span={12}>
-							<Statistic
-								title="Win Rate"
-								suffix="%"
-								precision={2}
-								value={this.state.stats.win_rate * 100}
-							/>
-						</Col>
-						<Col span={12}>
-							<Statistic
-								title="Place Rate"
-								suffix="%"
-								precision={2}
-								value={this.state.stats.place_rate * 100}
-							/>
-						</Col>
-						<Col span={12}>
-							<Statistic
-								title="Net Winnings"
-								prefix="£"
-								precision={2}
-								value={this.state.stats.net_winnings / 100}
-							/>
-						</Col>
-						<Col span={12}>
-							<Statistic
-								title="Gain per Game"
-								prefix="£"
-								precision={2}
-								value={this.state.stats.gain_per_game / 100}
-							/>
-						</Col>
-						<Col span={12}>
-							<Statistic
-								title="Avg Rating"
-								value={this.state.stats.average_rating}
-								precision={2}
-							/>
-						</Col>
-						<Col span={12}>
-							<Statistic
-								title="Avg. Placing"
-								value={this.state.stats.average_placing}
-								precision={2}
-							/>
-						</Col>
-					</Row>
-					)
+					{this.state.empty ? (
+						<Empty />
+					) : (
+						<Row gutter={[16, 16]}>
+							<Col span={12}>
+								<Statistic
+									title="Games Played"
+									value={this.state.stats.games_played}
+								/>
+							</Col>
+							<Col span={12}>
+								<Statistic title="Score" value={this.state.stats.score} />
+							</Col>
+							<Col span={12}>
+								<Statistic
+									title="Games Won"
+									value={this.state.stats.games_won}
+								/>
+							</Col>
+							<Col span={12}>
+								<Statistic
+									title="Times Placed"
+									value={this.state.stats.times_placed}
+								/>
+							</Col>
+							<Col span={12}>
+								<Statistic
+									title="Win Rate"
+									suffix="%"
+									precision={2}
+									value={this.state.stats.win_rate * 100}
+								/>
+							</Col>
+							<Col span={12}>
+								<Statistic
+									title="Place Rate"
+									suffix="%"
+									precision={2}
+									value={this.state.stats.place_rate * 100}
+								/>
+							</Col>
+							<Col span={12}>
+								<Statistic
+									title="Net Winnings"
+									prefix="£"
+									precision={2}
+									value={this.state.stats.net_winnings / 100}
+								/>
+							</Col>
+							<Col span={12}>
+								<Statistic
+									title="Gain per Game"
+									prefix="£"
+									precision={2}
+									value={this.state.stats.gain_per_game / 100}
+								/>
+							</Col>
+							<Col span={12}>
+								<Statistic
+									title="Avg Rating"
+									value={this.state.stats.average_rating}
+									precision={2}
+								/>
+							</Col>
+							<Col span={12}>
+								<Statistic
+									title="Avg. Placing"
+									value={this.state.stats.average_placing}
+									precision={2}
+								/>
+							</Col>
+						</Row>
+					)}
 				</Card>
 			);
 		}
