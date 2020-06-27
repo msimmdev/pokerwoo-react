@@ -52,9 +52,8 @@ class EditPlayer extends React.Component {
 
 	onSubmit(values) {
 		this.setState({ isSaving: true });
-		console.log(values);
 		if (values.avatar.length > 0) {
-			let imgUrl = values.avatar[0].url;
+			let imgUrl = values.avatar[0].response.url;
 			values.avatar = imgUrl;
 		} else {
 			delete values.avatar;
