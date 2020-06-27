@@ -6,7 +6,7 @@ class PlayerForm extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			showUpload: (props.initialValues.avatar.length === 0 ? true : false),
+			showUpload: (props.initialValues && props.initialValues.avatar.length === 0 ? true : false),
 		};
 	}
 
