@@ -54,13 +54,13 @@ class Profile extends React.Component {
 			let pageBreadcrumb = [{ name: "Players", link: "/players" }, "Profile"];
 			let title = "Profile";
 			return (
-				<PageSurround
-					pageBreadcrumb={pageBreadcrumb}
-					pageTitle={title}
-					history={this.props.history}
-				>
-					<Spin />
-				</PageSurround>
+				<Spin>
+					<PageSurround
+						pageBreadcrumb={pageBreadcrumb}
+						pageTitle={title}
+						history={this.props.history}
+					/>
+				</Spin>
 			);
 		} else {
 			let pageBreadcrumb = [
@@ -193,7 +193,7 @@ class Profile extends React.Component {
 							{hasPaymentInfo ? paymentDescriptions : ""}
 						</Col>
 						<Col sm={24} md={12}>
-						<GameStatistics
+							<GameStatistics
 								profileData={this.props.profileData}
 								history={this.props.history}
 							/>

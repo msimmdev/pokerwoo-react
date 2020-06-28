@@ -160,7 +160,7 @@ class AddGame extends React.Component {
 							this.setState({
 								isSaving: false,
 							});
-							this.props.history.push("/games");
+							this.props.history.push("/games/detail/" + gameId);
 							message.success("Game has been created");
 						});
 					});
@@ -215,7 +215,7 @@ class AddGame extends React.Component {
 								this.setState({
 									isSaving: false,
 								});
-								this.props.history.push("/games");
+								this.props.history.push("/games/detail/" + gameId);
 								message.success("Game has been created");
 							});
 						},

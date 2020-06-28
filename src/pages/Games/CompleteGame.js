@@ -447,13 +447,13 @@ class CompleteGame extends React.Component {
 
 		if (!this.state.isLoaded) {
 			return (
-				<PageSurround
-					pageBreadcrumb={pageBreadcrumb}
-					pageTitle={title}
-					history={this.props.history}
-				>
-					<Spin />
-				</PageSurround>
+				<Spin>
+					<PageSurround
+						pageBreadcrumb={pageBreadcrumb}
+						pageTitle={title}
+						history={this.props.history}
+					/>
+				</Spin>
 			);
 		} else if (this.state.error) {
 			return (
@@ -484,11 +484,13 @@ class CompleteGame extends React.Component {
 				);
 			} else if (this.state.stage === "placing") {
 				let players = [];
-				this.state.players.forEach((player) => {
-					if (player.participantId) {
-						players.push(player);
-					}
-				});
+				this.state.players
+					.sort((a, b) => a.name.localeCompare(b.name))
+					.forEach((player) => {
+						if (player.participantId) {
+							players.push(player);
+						}
+					});
 				content = (
 					<Row gutter={16}>
 						<Col sm={24} md={12}>
@@ -553,7 +555,13 @@ class CompleteGame extends React.Component {
 					</Row>
 				);
 			} else if (this.state.stage === "complete") {
-				content = <Spin />;
+				content = (
+					<Spin>
+						<Row>
+							<Col span={24}></Col>
+						</Row>
+					</Spin>
+				);
 			}
 			return (
 				<PageSurround
@@ -567,12 +575,14 @@ class CompleteGame extends React.Component {
 							type="primary"
 							icon={<StepForwardOutlined />}
 							onClick={this.stageForward}
+							disabled={this.state.stage === "completed"}
 						>
 							Continue
 						</Button>,
 					]}
 				>
 					<Steps current={currentStep}>{stepItems}</Steps>
+					<br />
 					{content}
 				</PageSurround>
 			);

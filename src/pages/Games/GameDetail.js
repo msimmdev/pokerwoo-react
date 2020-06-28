@@ -263,13 +263,13 @@ class GameDetail extends React.Component {
 		let title = "Game Detail";
 		if (!this.state.isLoaded) {
 			return (
-				<PageSurround
-					pageBreadcrumb={pageBreadcrumb}
-					pageTitle={title}
-					history={this.props.history}
-				>
-					<Spin />
-				</PageSurround>
+				<Spin>
+					<PageSurround
+						pageBreadcrumb={pageBreadcrumb}
+						pageTitle={title}
+						history={this.props.history}
+					/>
+				</Spin>
 			);
 		} else if (this.state.error) {
 			return (
@@ -413,8 +413,13 @@ class GamePlayerInfo extends React.Component {
 			}
 		});
 
+		players.sort((a, b) => a.name.localeCompare(b.name));
+
 		if (this.props.complete) {
-			players.sort((a, b) => (a.place === 0 ? 999 : a.place) - (b.place === 0 ? 999 : b.place));
+			players.sort(
+				(a, b) =>
+					(a.place === 0 ? 999 : a.place) - (b.place === 0 ? 999 : b.place)
+			);
 		}
 
 		return (

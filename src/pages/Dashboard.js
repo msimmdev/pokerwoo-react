@@ -18,7 +18,12 @@ import {
 } from "antd";
 import { PageSurround, PlayerName, GameStatistics } from "../components";
 import RestApi from "../utils/RestApi";
-import { PlusOutlined, EditOutlined, PoundOutlined, CalendarOutlined } from "@ant-design/icons";
+import {
+	PlusOutlined,
+	EditOutlined,
+	PoundOutlined,
+	CalendarOutlined,
+} from "@ant-design/icons";
 
 const { Paragraph } = Typography;
 
@@ -70,13 +75,13 @@ class Dashboard extends React.Component {
 			);
 		} else if (!this.state.isLoaded) {
 			return (
-				<PageSurround
-					pageBreadcrumb={pageBreadcrumb}
-					pageTitle={title}
-					history={this.props.history}
-				>
-					<Spin />
-				</PageSurround>
+				<Spin>
+					<PageSurround
+						pageBreadcrumb={pageBreadcrumb}
+						pageTitle={title}
+						history={this.props.history}
+					/>
+				</Spin>
 			);
 		} else {
 			return (
@@ -271,7 +276,13 @@ class NextSession extends React.Component {
 		if (this.state.error) {
 			return <Alert type="error">{this.state.error.message}</Alert>;
 		} else if (!this.state.isLoaded) {
-			return <Spin />;
+			return (
+				<Spin>
+					<Row>
+						<Col span={24}></Col>
+					</Row>
+				</Spin>
+			);
 		} else if (this.state.empty) {
 			return (
 				<Card
@@ -418,7 +429,13 @@ class GameCalendar extends React.Component {
 		if (this.state.error) {
 			return <Alert type="error">{this.state.error.message}</Alert>;
 		} else if (!this.state.isLoaded) {
-			return <Spin />;
+			return (
+				<Spin>
+					<Row>
+						<Col span={24}></Col>
+					</Row>
+				</Spin>
+			);
 		} else {
 			let gameLookup = {};
 			this.state.games.forEach((game) => {
@@ -528,20 +545,23 @@ class PaymentOverview extends React.Component {
 		if (this.state.error) {
 			return <Alert type="error">{this.state.error.message}</Alert>;
 		} else if (!this.state.isLoaded) {
-			return <Spin />;
+			return (
+				<Spin>
+					<Row>
+						<Col span={24}></Col>
+					</Row>
+				</Spin>
+			);
 		} else {
 			let toPay = 0;
 			let toBePaid = 0;
-			let balance = 0;
 			this.state.payerPayments.forEach((payment) => {
-				balance -= payment.payment_amount;
 				if (!payment.payment_confirmed && !payment.payment_sent) {
 					toPay += payment.payment_amount;
 				}
 			});
 
 			this.state.payeePayments.forEach((payment) => {
-				balance += payment.payment_amount;
 				if (!payment.payment_confirmed && !payment.payment_sent) {
 					toBePaid += payment.payment_amount;
 				}
@@ -570,13 +590,6 @@ class PaymentOverview extends React.Component {
 							<Link to="/payments?mine=payee">View Breakdown</Link>
 						</Col>
 						<Col span={12}></Col>
-						<Col span={12}>
-							<Statistic
-								title="Total balance"
-								prefix="£"
-								value={balance / 100}
-							/>
-						</Col>
 					</Row>
 				</Card>
 			);

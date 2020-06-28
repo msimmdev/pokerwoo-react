@@ -115,13 +115,13 @@ class EditGame extends React.Component {
 
 		if (!this.state.isLoaded) {
 			return (
-				<PageSurround
-					pageBreadcrumb={pageBreadcrumb}
-					pageTitle={title}
-					history={this.props.history}
-				>
-					<Spin />
-				</PageSurround>
+				<Spin>
+					<PageSurround
+						pageBreadcrumb={pageBreadcrumb}
+						pageTitle={title}
+						history={this.props.history}
+					/>
+				</Spin>
 			);
 		} else if (this.state.error) {
 			return (
@@ -130,10 +130,10 @@ class EditGame extends React.Component {
 					pageTitle={title}
 					history={this.props.history}
 				>
-					<Alert type='error' message={this.state.error.message} />
+					<Alert type="error" message={this.state.error.message} />
 				</PageSurround>
 			);
-        } else {
+		} else {
 			return (
 				<PageSurround
 					pageBreadcrumb={pageBreadcrumb}
