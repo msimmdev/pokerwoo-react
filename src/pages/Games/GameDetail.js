@@ -414,7 +414,7 @@ class GamePlayerInfo extends React.Component {
 		});
 
 		if (this.props.complete) {
-			players.sort((a, b) => a.place - b.place);
+			players.sort((a, b) => (a.place === 0 ? 999 : a.place) - (b.place === 0 ? 999 : b.place));
 		}
 
 		return (

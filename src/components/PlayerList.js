@@ -31,7 +31,14 @@ class PlayerList extends React.Component {
 			cols.push({
 				key: "place",
 				align: "center",
-				render: (record) => (this.props.places ? this.props.places[record.id] : record.place),
+				render: (record) =>
+					this.props.places
+						? this.props.places[record.id] === 0
+							? "-"
+							: record.place
+						: record.place === 0
+						? "-"
+						: record.place,
 			});
 		}
 
@@ -60,8 +67,8 @@ class PlayerList extends React.Component {
 					<Switch
 						key={record.id}
 						id={record.id}
-						checkedChildren='Progressed'
-						unCheckedChildren='Eliminated'
+						checkedChildren="Progressed"
+						unCheckedChildren="Eliminated"
 						defaultChecked={completed[record.participantId] || record.success}
 						onChange={(checked) => this.props.onSuccess(record, checked)}
 					/>
@@ -86,7 +93,11 @@ class PlayerList extends React.Component {
 			let payeeOptions = [];
 			this.props.players.forEach((player) => {
 				if (player.balance > 0) {
-					payeeOptions.push(<Option key={player.id} value={player.id}>{player.name}</Option>);
+					payeeOptions.push(
+						<Option key={player.id} value={player.id}>
+							{player.name}
+						</Option>
+					);
 				}
 			});
 			cols.push(
