@@ -157,14 +157,21 @@ class Profile extends React.Component {
 					]}
 				>
 					<Row gutter={16}>
-						<Col sm={24} md={12}>
-							<img
-								src={this.state.playerData.avatar + "?width=500"}
-								width="100%"
-								style={{ padding: "30px" }}
-								alt="Avatar"
-							/>
-						</Col>
+						{this.state.playerData.avatar ? (
+							<Col sm={24} md={12}>
+								<img
+									src={this.state.playerData.avatar + "?width=500"}
+									style={{
+										padding: "30px",
+										maxHeight: "300px",
+										marginLeft: "auto",
+										marginRight: "auto",
+										display: "block",
+									}}
+									alt="Avatar"
+								/>
+							</Col>
+						) : null}
 						<Col sm={24} md={12}>
 							<Descriptions
 								bordered
