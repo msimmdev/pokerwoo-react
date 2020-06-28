@@ -146,15 +146,19 @@ class LeaderBoards extends React.Component {
 					dataIndex: "dataPoint",
 					render: (val, record) => {
 						if (record.currency) {
+							let fVal = parseFloat(val);
+							fVal = fVal / 100;
 							return (
 								<CurrencyFormat
-									value={val / 100}
+									value={fVal.toFixed(2)}
 									displayType="text"
 									prefix="£"
 								/>
 							);
 						} else if (record.percentage) {
-							return parseFloat(val).toFixed(2) + " %";
+							let fVal = parseFloat(val);
+							fVal = fVal * 100;
+							return fVal.toFixed(2) + " %";
 						}
 
 						return val;
