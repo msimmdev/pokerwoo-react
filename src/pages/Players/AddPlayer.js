@@ -16,6 +16,12 @@ class AddPlayer extends React.Component {
 
 	onSubmit(values) {
 		this.setState({ isSaving: true });
+		if (values.avatar.length > 0) {
+			let imgUrl = values.avatar[0].response.url;
+			values.avatar = imgUrl;
+		} else {
+			delete values.avatar;
+		}
 		new RestApi("/players/players/").create({
 			data: values,
 			onRes: (res) => {

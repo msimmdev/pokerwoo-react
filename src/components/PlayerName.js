@@ -1,5 +1,5 @@
 import React from "react";
-import { Avatar, Space } from "antd";
+import { Avatar, Space, Tooltip } from "antd";
 import { Link } from "react-router-dom";
 
 class PlayerName extends React.Component {
@@ -7,16 +7,21 @@ class PlayerName extends React.Component {
 		return (
 			<Link to={"/players/" + this.props.data.id + "/"}>
 				<Space>
-					{this.props.data.avatar ? (
-						<Avatar size="large" src={this.props.data.avatar + "?width=40&height=40"} />
-					) : (
-						<Avatar
-							size="large"
-							style={{ color: "#ffffff", backgroundColor: "#ff322b" }}
-						>
-							{this.props.data.name[0]}
-						</Avatar>
-					)}
+					<Tooltip title={this.props.data.name}>
+						{this.props.data.avatar ? (
+							<Avatar
+								size="large"
+								src={this.props.data.avatar + "?width=40&height=40"}
+							/>
+						) : (
+							<Avatar
+								size="large"
+								style={{ color: "#ffffff", backgroundColor: "#ff322b" }}
+							>
+								{this.props.data.name[0]}
+							</Avatar>
+						)}
+					</Tooltip>
 					{this.props.children}
 				</Space>
 			</Link>
