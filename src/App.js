@@ -17,6 +17,7 @@ const { Header, Content, Footer } = Layout;
 class App extends React.Component {
 	constructor(props) {
 		super(props);
+		this.updateProfile = this.updateProfile.bind(this);
 		this.state = {
 			error: null,
 			isLoaded: false,
@@ -48,6 +49,10 @@ class App extends React.Component {
 				});
 			},
 		});
+	}
+
+	updateProfile(data) {
+		this.setState({ profileData: data });
 	}
 
 	render() {
@@ -110,7 +115,7 @@ class App extends React.Component {
 								</Row>
 							</Header>
 							<Content className="site-content">
-								<Routes profileData={this.state.profileData} />
+								<Routes profileData={this.state.profileData} updateProfile={this.updateProfile} />
 							</Content>
 							<Footer style={{ textAlign: "center" }}>
 								Copyright &copy; 2020 Michael Simm. All Rights Reserverd

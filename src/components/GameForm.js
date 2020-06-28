@@ -250,16 +250,18 @@ class GameForm extends React.Component {
 															.indexOf(input.toLowerCase()) >= 0
 													}
 												>
-													{this.state.players.map((player) => {
-														if (player.active) {
-															return (
-																<Option key={player.id} value={player.id}>
-																	{player.name}
-																</Option>
-															);
-														}
-														return "";
-													})}
+													{this.state.players
+														.sort((a, b) => a.name.localeCompare(b.name))
+														.map((player) => {
+															if (player.active) {
+																return (
+																	<Option key={player.id} value={player.id}>
+																		{player.name}
+																	</Option>
+																);
+															}
+															return "";
+														})}
 												</Select>
 											</Form.Item>
 										);

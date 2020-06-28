@@ -32,63 +32,60 @@ class AddGame extends React.Component {
 		}
 
 		this.setState({ isSaving: true });
-		new RestApi("/poker/games/")
-			.create({
-				data: gameData,
-				onRes: (res) => {
-					if (res.status !== 201) {
-						return Promise.reject(new Error("Unable to create game"));
-					}
-					return res;
-				},
-				onParse: (result) => {
-					let gameId = result.id;
+		new RestApi("/poker/games/").create({
+			data: gameData,
+			onRes: (res) => {
+				if (res.status !== 201) {
+					return Promise.reject(new Error("Unable to create game"));
+				}
+				return res;
+			},
+			onParse: (result) => {
+				let gameId = result.id;
 
-					if (values.tables !== "1") {
-						let addedPlayers = {};
-						let gameParticipants = [];
-						Object.keys(this.state.designations).forEach((level) => {
-							this.state.designations[level].forEach((designation) => {
-								if (values["participants_" + designation]) {
-									values["participants_" + designation].forEach((element) => {
-										if (!addedPlayers[element]) {
-											gameParticipants.push(element);
-											addedPlayers[element] = 1;
-										}
-									});
-								}
-							});
-						});
-						let addedPlayerRefs = {};
-						let participantPromises = [];
-						gameParticipants.forEach((element) => {
-							participantPromises.push(
-								new RestApi("/poker/games/" + gameId + "/participants/").create(
-									{
-										data: { player_ref: element },
-										onRes: (res) => {
-											if (res.status !== 201) {
-												return Promise.reject(
-													new Error("Unable to add participants to game")
-												);
-											}
-											return res;
-										},
-										onParse: (result) => {
-											let gameParticipantId = result.id;
-											addedPlayerRefs[element] = gameParticipantId;
-										},
-										onError: (error) => {
-											this.setState({
-												isSaving: false,
-											});
-											message.error(error.message);
-										},
+				if (values.tables !== "1") {
+					let addedPlayers = {};
+					let gameParticipants = [];
+					Object.keys(this.state.designations).forEach((level) => {
+						this.state.designations[level].forEach((designation) => {
+							if (values["participants_" + designation]) {
+								values["participants_" + designation].forEach((element) => {
+									if (!addedPlayers[element]) {
+										gameParticipants.push(element);
+										addedPlayers[element] = 1;
 									}
-								)
-							);
+								});
+							}
 						});
-						Promise.all(participantPromises);
+					});
+					let addedPlayerRefs = {};
+					let participantPromises = [];
+					gameParticipants.forEach((element) => {
+						participantPromises.push(
+							new RestApi("/poker/games/" + gameId + "/participants/").create({
+								data: { player_ref: element },
+								onRes: (res) => {
+									if (res.status !== 201) {
+										return Promise.reject(
+											new Error("Unable to add participants to game")
+										);
+									}
+									return res;
+								},
+								onParse: (result) => {
+									let gameParticipantId = result.id;
+									addedPlayerRefs[element] = gameParticipantId;
+								},
+								onError: (error) => {
+									this.setState({
+										isSaving: false,
+									});
+									message.error(error.message);
+								},
+							})
+						);
+					});
+					Promise.all(participantPromises).then(() => {
 						let tablePromises = [];
 						Object.keys(this.state.designations).forEach((level) => {
 							this.state.designations[level].forEach((designation) => {
@@ -123,7 +120,9 @@ class AddGame extends React.Component {
 																		tableId +
 																		"/participants/"
 																).create({
-																	data: { game_participant: gameParticipantId },
+																	data: {
+																		game_participant: gameParticipantId,
+																	},
 																	onRes: (res) => {
 																		if (res.status !== 201) {
 																			return Promise.reject(
@@ -145,7 +144,6 @@ class AddGame extends React.Component {
 														}
 													}
 												);
-												Promise.all(tableParticipantPromises);
 											}
 										},
 										onError: (error) => {
@@ -158,83 +156,85 @@ class AddGame extends React.Component {
 								);
 							});
 						});
-						Promise.all(tablePromises);
-					} else {
-						let tablePromise = new RestApi(
-							"/poker/games/" + gameId + "/tables/"
-						).create({
-							data: { designation: "Final" },
-							onRes: (res) => {
-								if (res.status !== 201) {
-									return Promise.reject(new Error("Unable to create table"));
-								}
-								return res;
-							},
-							onParse: (result) => {
-								let tableId = result.id;
-								let participantPromises = [];
-								values.participants.forEach((element) => {
-									participantPromises.push(
-										new RestApi(
-											"/poker/games/" + gameId + "/participants/"
-										).create({
-											data: { player_ref: element },
-											onRes: (res) => {
-												if (res.status !== 201) {
-													return Promise.reject(
-														new Error("Unable to add participants to game")
-													);
-												}
-												return res;
-											},
-											onParse: (result) => {
-												let gameParticipantId = result.id;
-												let p = new RestApi(
-													"/poker/games/" +
-														gameId +
-														"/tables/" +
-														tableId +
-														"/participants/"
-												).create({
-													data: { game_participant: gameParticipantId },
-												});
-												Promise.all([p]);
-											},
-											onError: (error) => {
-												this.setState({
-													isSaving: false,
-												});
-												message.error(error.message);
-											},
-										})
-									);
-								});
-								Promise.all(participantPromises);
-							},
-							onError: (error) => {
+						Promise.all(tablePromises).then(() => {
+							this.setState({
+								isSaving: false,
+							});
+							this.props.history.push("/games");
+							message.success("Game has been created");
+						});
+					});
+				} else {
+					new RestApi("/poker/games/" + gameId + "/tables/").create({
+						data: { designation: "Final" },
+						onRes: (res) => {
+							if (res.status !== 201) {
+								return Promise.reject(new Error("Unable to create table"));
+							}
+							return res;
+						},
+						onParse: (result) => {
+							let tableId = result.id;
+							let participantPromises = [];
+							values.participants.forEach((element) => {
+								participantPromises.push(
+									new RestApi(
+										"/poker/games/" + gameId + "/participants/"
+									).create({
+										data: { player_ref: element },
+										onRes: (res) => {
+											if (res.status !== 201) {
+												return Promise.reject(
+													new Error("Unable to add participants to game")
+												);
+											}
+											return res;
+										},
+										onParse: (result) => {
+											let gameParticipantId = result.id;
+											new RestApi(
+												"/poker/games/" +
+													gameId +
+													"/tables/" +
+													tableId +
+													"/participants/"
+											).create({
+												data: { game_participant: gameParticipantId },
+											});
+										},
+										onError: (error) => {
+											this.setState({
+												isSaving: false,
+											});
+											message.error(error.message);
+										},
+									})
+								);
+							});
+							Promise.all(participantPromises).then(() => {
 								this.setState({
 									isSaving: false,
 								});
-								message.error(error.message);
-							},
-						});
-						Promise.all([tablePromise]);
-					}
-				},
-				onError: (error) => {
-					this.setState({
-						isSaving: false,
+								this.props.history.push("/games");
+								message.success("Game has been created");
+							});
+						},
+						onError: (error) => {
+							this.setState({
+								isSaving: false,
+							});
+							message.error(error.message);
+						},
 					});
-					message.error(error.message);
-				},
-			})
-			.then(() => {
+				}
+			},
+			onError: (error) => {
 				this.setState({
 					isSaving: false,
 				});
-				this.props.history.push("/games");
-				message.success("Game has been created");
-			});
+				message.error(error.message);
+			},
+		});
 	}
 
 	changeTables(value) {

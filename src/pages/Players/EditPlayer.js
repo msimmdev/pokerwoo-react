@@ -66,11 +66,14 @@ class EditPlayer extends React.Component {
 				}
 				return res;
 			},
-			onParse: () => {
+			onParse: (data) => {
 				this.setState({
 					isSaving: false,
 				});
 				this.props.history.push("/players");
+				if (this.id === this.props.profileData.id) {
+					this.props.updateProfile(data);
+				}
 				message.success("Player has been updated");
 			},
 			onError: (error) => {

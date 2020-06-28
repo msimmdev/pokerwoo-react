@@ -100,6 +100,7 @@ function RouteWithSubRoutes(route) {
 				return (
 					<route.component
 						profileData={route.profileData}
+						updateProfile={route.updateProfile}
 						{...routeProps}
 						routes={route.routes}
 					/>
@@ -115,6 +116,7 @@ export default function Routes(props) {
 			{routes.map((route, i) => (
 				<RouteWithSubRoutes
 					profileData={props.profileData}
+					updateProfile={props.updateProfile}
 					key={i}
 					{...route}
 				/>

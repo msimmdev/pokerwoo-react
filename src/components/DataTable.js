@@ -122,6 +122,7 @@ class DataTable extends React.Component {
 				rowKey={this.props.rowKey}
 				bordered={this.props.bordered}
 				showSorterTooltip={this.props.showSorterTooltip}
+				pagination={{ defaultPageSize: 20 }}
 			/>
 		);
 	}

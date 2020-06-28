@@ -429,7 +429,7 @@ class GamePlayerInfo extends React.Component {
 				delete={true}
 				success={false}
 				add={true}
-				place={true}
+				place={this.props.complete}
 			/>
 		);
 	}

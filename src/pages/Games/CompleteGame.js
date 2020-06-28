@@ -8,10 +8,11 @@ import {
 	Steps,
 	Row,
 	Col,
+	Card,
 	Typography,
 	message,
 } from "antd";
-import { StepForwardOutlined } from "@ant-design/icons";
+import { StepForwardOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import RestApi from "../../utils/RestApi";
 
 const { Step } = Steps;
@@ -297,7 +298,7 @@ class CompleteGame extends React.Component {
 										payer: player.id,
 										payee: player.payee,
 										game_ref: this.id,
-										payment_amount: (player.balance * -1),
+										payment_amount: player.balance * -1,
 									},
 									onRes: (res) => {
 										if (res.status !== 201) {
@@ -319,25 +320,20 @@ class CompleteGame extends React.Component {
 
 					// Finally mark the payment as complete.
 					Promise.all(paymentPromises).then(() => {
-						new RestApi(
-							"/poker/games/" +
-								this.id + "/"
-						).partialUpdate({
+						new RestApi("/poker/games/" + this.id + "/").partialUpdate({
 							data: {
-								complete: true
+								complete: true,
 							},
 							onRes: (res) => {
 								if (res.status !== 200) {
 									return Promise.reject(
-										new Error(
-											"There was a problem updating the game"
-										)
+										new Error("There was a problem updating the game")
 									);
 								}
 								return res;
 							},
 							onParse: () => {
-								message.success('Game has been completed');
+								message.success("Game has been completed");
 								this.props.history.push("/games/detail/" + this.id);
 							},
 							onError: (error) => {
@@ -345,7 +341,7 @@ class CompleteGame extends React.Component {
 									error: error,
 								});
 							},
-						})
+						});
 					});
 				});
 			});
@@ -496,7 +492,19 @@ class CompleteGame extends React.Component {
 				content = (
 					<Row gutter={16}>
 						<Col sm={24} md={12}>
-							<Paragraph>Some Text</Paragraph>
+							<Row>
+								<Col span={12}>
+									<div className="ant-descriptions-title" />
+								</Col>
+							</Row>
+							<Card>
+								<Paragraph>
+									<InfoCircleOutlined /> Enter the places for each player on the
+									right hand side as a numerical value. 1 for the winner, 2 for
+									second place etc. For any players where the place is unknown
+									enter 0.
+								</Paragraph>
+							</Card>
 						</Col>
 						<Col sm={24} md={12}>
 							<PlayerList
@@ -522,6 +530,13 @@ class CompleteGame extends React.Component {
 				content = (
 					<Row gutter={16}>
 						<Col sm={24} md={24}>
+							<Card>
+								<Paragraph>
+									<InfoCircleOutlined /> Check the payment details below. If
+									required you can change the payment values or the adjust who
+									is paying who.
+								</Paragraph>
+							</Card>
 							<PlayerList
 								players={players}
 								places={this.state.places}
