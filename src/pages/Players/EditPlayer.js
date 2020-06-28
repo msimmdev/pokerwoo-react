@@ -19,27 +19,33 @@ class EditPlayer extends React.Component {
 	}
 
 	componentDidMount() {
-		new RestApi('/players/players/' + this.id + '/').retrieve({
+		new RestApi("/players/players/" + this.id + "/").retrieve({
 			onRes: (res) => {
 				if (res.status !== 200) {
-					return Promise.reject(new Error('Unable to retrieve player.'));
+					return Promise.reject(new Error("Unable to retrieve player."));
 				}
 				return res;
 			},
 			onParse: (result) => {
 				if (result.avatar) {
-					result.avatar = [ {
-						thumburl: result.avatar,
-						url: result.avatar,
-						uid: 1,
-					} ];
+					result.avatar = [
+						{
+							thumburl: result.avatar,
+							url: result.avatar,
+							uid: 1,
+						},
+					];
 				} else {
 					result.avatar = [];
 				}
-				this.setState({
-					isLoaded: true,
-					playerData: result,
-				});
+				if (result.user && !this.props.allowEditUser) {
+					return Promise.reject(new Error("Cannot edit another user."));
+				} else {
+					this.setState({
+						isLoaded: true,
+						playerData: result,
+					});
+				}
 			},
 			onError: (error) => {
 				this.setState({
@@ -58,11 +64,11 @@ class EditPlayer extends React.Component {
 		} else {
 			delete values.avatar;
 		}
-		new RestApi('/players/players/' + this.id + '/').update({
+		new RestApi("/players/players/" + this.id + "/").update({
 			data: values,
 			onRes: (res) => {
 				if (res.status !== 200) {
-					return Promise.reject(new Error('Unable to update player.'));
+					return Promise.reject(new Error("Unable to update player."));
 				}
 				return res;
 			},
@@ -106,10 +112,10 @@ class EditPlayer extends React.Component {
 					pageTitle={title}
 					history={this.props.history}
 				>
-					<Alert type='error' message={this.state.error.message} />
+					<Alert type="error" message={this.state.error.message} />
 				</PageSurround>
 			);
-        } else {
+		} else {
 			return (
 				<PageSurround
 					pageBreadcrumb={pageBreadcrumb}

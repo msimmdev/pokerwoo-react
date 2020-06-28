@@ -130,31 +130,43 @@ class Profile extends React.Component {
 				</Descriptions>
 			);
 
+			let extra = [
+				<DeleteButton
+					id={this.state.playerData.id}
+					key="deletebutton"
+					resourse={"/players/players/" + this.state.playerData.id + "/"}
+					onRes={() => {
+						message.success("Game has been deleted");
+						this.props.history.push("/players");
+					}}
+					confirmMessage="Are you sure you want to delete this player?"
+				>
+					Delete Player
+				</DeleteButton>,
+			];
+
+			if (!this.state.playerData.user) {
+				extra.push(
+					<Link key="editlink" to={"/players/edit/" + this.state.playerData.id}>
+						<Button icon={<EditOutlined />}>Edit Player</Button>
+					</Link>
+				);
+			}
+
+			if (this.state.playerData.id === this.props.profileData.id) {
+				extra.push(
+					<Link key="editlink" to="/players/profile">
+						<Button icon={<EditOutlined />}>Edit Profile</Button>
+					</Link>
+				);
+			}
+
 			return (
 				<PageSurround
 					pageBreadcrumb={pageBreadcrumb}
 					pageTitle={title}
 					history={this.props.history}
-					extra={[
-						<DeleteButton
-							id={this.state.playerData.id}
-							key="deletebutton"
-							resourse={"/players/players/" + this.state.playerData.id + "/"}
-							onRes={() => {
-								message.success("Game has been deleted");
-								this.props.history.push("/players");
-							}}
-							confirmMessage="Are you sure you want to delete this player?"
-						>
-							Delete Player
-						</DeleteButton>,
-						<Link
-							key="editlink"
-							to={"/players/edit/" + this.state.playerData.id}
-						>
-							<Button icon={<EditOutlined />}>Edit Player</Button>
-						</Link>,
-					]}
+					extra={extra}
 				>
 					<Row gutter={16}>
 						{this.state.playerData.avatar ? (

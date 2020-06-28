@@ -6,6 +6,7 @@ class EditProfile extends React.Component {
 		return (
 			<EditPlayer
 				{...this.props}
+				allowEditUser={true}
 				playerId={this.props.profileData.id}
 			/>
 		);
