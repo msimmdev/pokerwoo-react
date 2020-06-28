@@ -194,7 +194,7 @@ class Profile extends React.Component {
 						</Col>
 						<Col sm={24} md={12}>
 							<GameStatistics
-								profileData={this.props.profileData}
+								profileData={this.state.playerData}
 								history={this.props.history}
 							/>
 						</Col>
