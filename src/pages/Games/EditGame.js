@@ -28,6 +28,9 @@ class EditGame extends React.Component {
 				return res;
 			},
 			onParse: (result) => {
+				result.competition = result.competitions.map(
+					(item) => item.competition
+				);
 				result.date_played = moment(result.date_played);
 				result.place_two_multiplier = parseInt(result.place_two_multiplier);
 				result.place_three_multiplier = parseInt(result.place_three_multiplier);
@@ -90,11 +93,60 @@ class EditGame extends React.Component {
 				return res;
 			},
 			onParse: () => {
-				this.setState({
-					isSaving: false,
+				let compPromises = [];
+				this.state.gameData.competitions.forEach((comp) => {
+					let found = false;
+					values.competition.forEach((subComp) => {
+						if (subComp === comp.competition) {
+							found = true;
+						}
+					});
+					if (!found) {
+						compPromises.push(
+							new RestApi(
+								"/poker/competitions/" + comp.competition + "/games/" + comp.id + "/"
+							).delete({
+								onError: (error) => {
+									this.setState({
+										isSaving: false,
+									});
+									message.error(error.message);
+								},
+							})
+						);
+					}
 				});
-				this.props.history.push("/games/detail/" + this.id);
-				message.success("Game has been updated");
+
+				values.competition.forEach((subComp) => {
+					let found = false;
+					this.state.gameData.competitions.forEach((comp) => {
+						if (subComp === comp.competition) {
+							found = true;
+						}
+					});
+
+					if (!found) {
+						compPromises.push(
+							new RestApi("/poker/competitions/" + subComp + "/games/").create({
+								data: { game: this.id, competition: subComp },
+								onError: (error) => {
+									this.setState({
+										isSaving: false,
+									});
+									message.error(error.message);
+								},
+							})
+						);
+					}
+				});
+
+				Promise.all(compPromises).then(() => {
+					this.setState({
+						isSaving: false,
+					});
+					this.props.history.push("/games/detail/" + this.id);
+					message.success("Game has been updated");
+				});
 			},
 			onError: (error) => {
 				this.setState({

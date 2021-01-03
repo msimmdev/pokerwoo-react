@@ -1,8 +1,10 @@
 import React from "react";
 import CurrencyFormat from "react-currency-format";
-import { Alert, Menu } from "antd";
+import { Alert, Menu, Select } from "antd";
 import RestApi from "../utils/RestApi";
 import { DataTable, PageSurround, PlayerName } from "../components";
+
+const { Option } = Select;
 
 const titles = {
 	games_played: "Games Played",
@@ -22,6 +24,7 @@ class LeaderBoards extends React.Component {
 		super(props);
 		this.createBoardData = this.createBoardData.bind(this);
 		this.changeBoard = this.changeBoard.bind(this);
+		this.changeCompetition = this.changeCompetition.bind(this);
 		this.state = {
 			error: null,
 			isLoaded: false,
@@ -29,6 +32,8 @@ class LeaderBoards extends React.Component {
 			stats: [],
 			players: [],
 			leaderData: [],
+			competitions: [],
+			activeCompetition: null,
 		};
 	}
 
@@ -41,22 +46,50 @@ class LeaderBoards extends React.Component {
 				return res;
 			},
 			onParse: (players) => {
-				new RestApi("/poker/stats/").retrieve({
+				new RestApi("/poker/competitions/").retrieve({
 					onRes: (res) => {
 						if (res.status !== 200) {
 							return Promise.reject(
-								new Error("Unable to retrieve stats list.")
+								new Error("Unable to retrieve competition list.")
 							);
 						}
 						return res;
 					},
-					onParse: (stats) => {
-						let boardData = this.createBoardData(stats, players, this.state.activeBoard);
-						this.setState({
-							isLoaded: true,
-							stats: stats,
-							players: players,
-							leaderData: boardData,
+					onParse: (comps) => {
+						let comp = comps
+							.filter((a) => a.active)
+							.sort((a, b) => a.order - b.order)[0];
+						new RestApi("/poker/stats/?competition=" + comp.id).retrieve({
+							onRes: (res) => {
+								if (res.status !== 200) {
+									return Promise.reject(
+										new Error("Unable to retrieve stats list.")
+									);
+								}
+								return res;
+							},
+							onParse: (stats) => {
+								let boardData = this.createBoardData(
+									stats,
+									players,
+									this.state.activeBoard
+								);
+								this.setState({
+									isLoaded: true,
+									stats: stats,
+									players: players,
+									leaderData: boardData,
+									competitions: comps,
+									activeCompetition: comp,
+								});
+							},
+							onError: (error) => {
+								console.error(error);
+								this.setState({
+									isLoaded: true,
+									error,
+								});
+							},
 						});
 					},
 					onError: (error) => {
@@ -93,15 +126,9 @@ class LeaderBoards extends React.Component {
 
 			boardData.push({
 				currency:
-				board === "net_winnings" ||
-				board === "gain_per_game"
-						? true
-						: false,
+					board === "net_winnings" || board === "gain_per_game" ? true : false,
 				percentage:
-				board === "win_rate" ||
-				board=== "place_rate"
-						? true
-						: false,
+					board === "win_rate" || board === "place_rate" ? true : false,
 				rank: i,
 				playerName: playerData.name,
 				player: playerData,
@@ -113,10 +140,51 @@ class LeaderBoards extends React.Component {
 	}
 
 	changeBoard(item) {
-		let boardData = this.createBoardData(this.state.stats, this.state.players, item.key);
+		let boardData = this.createBoardData(
+			this.state.stats,
+			this.state.players,
+			item.key
+		);
 		this.setState({
 			leaderData: boardData,
 			activeBoard: item.key,
+		});
+	}
+
+	changeCompetition(competitionId) {
+		this.setState({
+			isLoaded: false,
+		});
+		let comp = this.state.competitions.filter((a) => a.id === competitionId)[0];
+		new RestApi("/poker/stats/?competition=" + competitionId).retrieve({
+			onRes: (res) => {
+				if (res.status !== 200) {
+					return Promise.reject(
+						new Error("Unable to retrieve stats list.")
+					);
+				}
+				return res;
+			},
+			onParse: (stats) => {
+				let boardData = this.createBoardData(
+					stats,
+					this.state.players,
+					this.state.activeBoard
+				);
+				this.setState({
+					isLoaded: true,
+					stats: stats,
+					leaderData: boardData,
+					activeCompetition: comp,
+				});
+			},
+			onError: (error) => {
+				console.error(error);
+				this.setState({
+					isLoaded: true,
+					error,
+				});
+			},
 		});
 	}
 
@@ -166,8 +234,17 @@ class LeaderBoards extends React.Component {
 				},
 			];
 
+			let select = "";
+			if (this.state.competitions.length > 1) {
+				let optionList = [];
+				this.state.competitions.forEach((comp) => {
+					optionList.push(<Option value={comp.id}>{comp.name}</Option>);
+				});
+				select = <Select defaultValue={this.state.activeCompetition.id} style={{ width: "100%" }} onChange={this.changeCompetition}>{optionList}</Select>;
+			}
+
 			return (
-				<PageSurround pageBreadcrumb={pageBreadcrumb} pageTitle={title}>
+				<PageSurround pageBreadcrumb={pageBreadcrumb} pageTitle={title} extra={select}>
 					<Menu
 						selectedKeys={[this.state.activeBoard]}
 						onClick={this.changeBoard}

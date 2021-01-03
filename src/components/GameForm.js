@@ -21,7 +21,9 @@ class GameForm extends React.Component {
 		this.state = {
 			error: null,
 			isLoaded: false,
+			compLoaded: false,
 			players: [],
+			competitions: [],
 		};
 	}
 
@@ -46,12 +48,35 @@ class GameForm extends React.Component {
 				});
 			},
 		});
+
+		new RestApi("/poker/competitions/?active=true").retrieve({
+			onRes: (res) => {
+				if (res.status !== 200) {
+					return Promise.reject(
+						new Error("Unable to retrieve competition list.")
+					);
+				}
+				return res;
+			},
+			onParse: (result) => {
+				this.setState({
+					compLoaded: true,
+					competitions: result,
+				});
+			},
+			onError: (error) => {
+				this.setState({
+					compLoaded: true,
+					error,
+				});
+			},
+		});
 	}
 
 	render() {
 		if (this.state.error) {
 			return <Alert type="error" message={this.state.error.message} />;
-		} else if (!this.state.isLoaded) {
+		} else if (!this.state.isLoaded || !this.state.compLoaded) {
 			return <Spin />;
 		} else {
 			return (
@@ -72,10 +97,45 @@ class GameForm extends React.Component {
 									tables: "1",
 									place_two_multiplier_custom: 3,
 									place_three_multiplier_custom: 3,
+									competition: [
+										this.state.competitions.sort((a, b) => a.order - b.order)[0]
+											.id,
+									],
 							  }
 					}
 					ref={this.props.formRef}
 				>
+					<Form.Item
+						label="Competition"
+						name="competition"
+						rules={[
+							{
+								required: true,
+								message: "You must provide at least one competition",
+							},
+						]}
+					>
+						<Select
+							mode="multiple"
+							placeholder="Select a competition"
+							filterOption={(input, option) =>
+								option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+							}
+						>
+							{this.state.competitions
+								.sort((a, b) => a.order - b.order)
+								.map((comp) => {
+									if (comp.active) {
+										return (
+											<Option key={comp.id} value={comp.id}>
+												{comp.name}
+											</Option>
+										);
+									}
+									return "";
+								})}
+						</Select>
+					</Form.Item>
 					<Form.Item
 						label="Game Date"
 						name="date_played"

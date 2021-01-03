@@ -157,11 +157,37 @@ class AddGame extends React.Component {
 							});
 						});
 						Promise.all(tablePromises).then(() => {
-							this.setState({
-								isSaving: false,
+							let compPromises = [];
+							values.competition.forEach((comp) => {
+								compPromises.push(
+									new RestApi("/poker/competitions/" + comp + "/games/").create(
+										{
+											data: { game: gameId, competition: comp },
+											onRes: (res) => {
+												if (res.status !== 201) {
+													return Promise.reject(
+														new Error("Unable to create competition link")
+													);
+												}
+												return res;
+											},
+											onError: (error) => {
+												this.setState({
+													isSaving: false,
+												});
+												message.error(error.message);
+											},
+										}
+									)
+								);
 							});
-							this.props.history.push("/games/detail/" + gameId);
-							message.success("Game has been created");
+							Promise.all(compPromises).then(() => {
+								this.setState({
+									isSaving: false,
+								});
+								this.props.history.push("/games/detail/" + gameId);
+								message.success("Game has been created");
+							});
 						});
 					});
 				} else {
@@ -212,11 +238,37 @@ class AddGame extends React.Component {
 								);
 							});
 							Promise.all(participantPromises).then(() => {
-								this.setState({
-									isSaving: false,
+								let compPromises = [];
+								values.competition.forEach((comp) => {
+									compPromises.push(
+										new RestApi(
+											"/poker/competitions/" + comp + "/games/"
+										).create({
+											data: { game: gameId, competition: comp },
+											onRes: (res) => {
+												if (res.status !== 201) {
+													return Promise.reject(
+														new Error("Unable to create competition link")
+													);
+												}
+												return res;
+											},
+											onError: (error) => {
+												this.setState({
+													isSaving: false,
+												});
+												message.error(error.message);
+											},
+										})
+									);
 								});
-								this.props.history.push("/games/detail/" + gameId);
-								message.success("Game has been created");
+								Promise.all(compPromises).then(() => {
+									this.setState({
+										isSaving: false,
+									});
+									this.props.history.push("/games/detail/" + gameId);
+									message.success("Game has been created");
+								});
 							});
 						},
 						onError: (error) => {

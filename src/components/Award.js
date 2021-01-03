@@ -8,7 +8,6 @@ import { Tooltip } from "antd";
 class Award extends React.Component {
 	render() {
 		let returnVal = "";
-		console.log(this.props.data);
 		let size = 22;
 		if (this.props.size === "large") {
 			size = 100;
