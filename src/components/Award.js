@@ -6,7 +6,6 @@ import { ReactComponent as WinRate2020 } from "../awards/win-rate-2020.svg";
 import { Tooltip } from "antd";
 
 class Award extends React.Component {
-
 	render() {
 		let returnVal = "";
 		console.log(this.props.data);
@@ -14,17 +13,17 @@ class Award extends React.Component {
 		if (this.props.size === "large") {
 			size = 100;
 		}
-		switch (this.props.data.award_key){
-			case 'top-score-2020':
+		switch (this.props.data.award_key) {
+			case "top-score-2020":
 				returnVal = <TopScore2020 width={size} height={size} />;
 				break;
-			case 'games-played-2020':
+			case "games-played-2020":
 				returnVal = <GamesPlayed2020 width={size} height={size} />;
 				break;
-			case 'place-rate-2020':
+			case "place-rate-2020":
 				returnVal = <PlaceRate2020 width={size} height={size} />;
 				break;
-			case 'win-rate-2020':
+			case "win-rate-2020":
 				returnVal = <WinRate2020 width={size} height={size} />;
 				break;
 			default:

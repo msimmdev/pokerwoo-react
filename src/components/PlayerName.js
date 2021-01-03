@@ -10,9 +10,7 @@ class PlayerName extends React.Component {
 			this.props.data.awards
 				.sort((a, b) => new Date(b.granted) - new Date(a.granted))
 				.forEach((award) => {
-					awardList.push(
-						<Award data={award} key={award.award_key} />
-					);
+					awardList.push(<Award data={award} key={award.award_key} />);
 				});
 		}
 

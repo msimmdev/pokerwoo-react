@@ -65,13 +65,14 @@ class GameStatistics extends React.Component {
 			return <Spin />;
 		} else {
 			let awardList = [];
-			console.log(this.props.profileData);
 			if (this.props.profileData.awards.length > 0) {
-				this.props.profileData.awards.sort((a, b) => new Date(b.granted) - new Date(a.granted)).forEach((award) => {
-					awardList.push(
-						<Award size="large" data={award} key={award.award_key} />
-					);
-				});
+				this.props.profileData.awards
+					.sort((a, b) => new Date(b.granted) - new Date(a.granted))
+					.forEach((award) => {
+						awardList.push(
+							<Award size="large" data={award} key={award.award_key} />
+						);
+					});
 			}
 			return (
 				<Card
