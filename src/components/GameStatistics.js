@@ -1,8 +1,19 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Alert, Spin, Empty, Card, Row, Col, Statistic, Button } from "antd";
+import {
+	Alert,
+	Spin,
+	Empty,
+	Card,
+	Row,
+	Col,
+	Statistic,
+	Button,
+	Space,
+} from "antd";
 import { FundViewOutlined } from "@ant-design/icons";
 import RestApi from "../utils/RestApi";
+import { Award } from "./";
 
 class GameStatistics extends React.Component {
 	constructor(props) {
@@ -53,6 +64,15 @@ class GameStatistics extends React.Component {
 		} else if (!this.state.isLoaded) {
 			return <Spin />;
 		} else {
+			let awardList = [];
+			console.log(this.props.profileData);
+			if (this.props.profileData.awards.length > 0) {
+				this.props.profileData.awards.sort((a, b) => new Date(b.granted) - new Date(a.granted)).forEach((award) => {
+					awardList.push(
+						<Award size="large" data={award} key={award.award_key} />
+					);
+				});
+			}
 			return (
 				<Card
 					title="Game Statistics"
@@ -134,6 +154,13 @@ class GameStatistics extends React.Component {
 								/>
 							</Col>
 						</Row>
+					)}
+					{awardList.length > 0 ? (
+						<Row>
+							<Space>{awardList}</Space>
+						</Row>
+					) : (
+						""
 					)}
 				</Card>
 			);

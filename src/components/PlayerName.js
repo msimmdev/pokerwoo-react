@@ -1,9 +1,21 @@
 import React from "react";
-import { Avatar, Space, Tooltip } from "antd";
+import { Avatar, Space, Tooltip, Row, Col } from "antd";
+import { Award } from "./";
 import { Link } from "react-router-dom";
 
 class PlayerName extends React.Component {
 	render() {
+		let awardList = [];
+		if (this.props.data.awards.length > 0) {
+			this.props.data.awards
+				.sort((a, b) => new Date(b.granted) - new Date(a.granted))
+				.forEach((award) => {
+					awardList.push(
+						<Award data={award} key={award.award_key} />
+					);
+				});
+		}
+
 		return (
 			<Link to={"/players/" + this.props.data.id + "/"}>
 				<Space>
@@ -22,7 +34,16 @@ class PlayerName extends React.Component {
 							</Avatar>
 						)}
 					</Tooltip>
-					{this.props.children}
+					<Row>
+						<Col span={24}>{this.props.children}</Col>
+						{awardList.length > 0 ? (
+							<Col span={24}>
+								<Space>{awardList}</Space>
+							</Col>
+						) : (
+							""
+						)}
+					</Row>
 				</Space>
 			</Link>
 		);
