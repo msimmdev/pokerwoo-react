@@ -6,12 +6,14 @@ module.exports = {
 			plugin: CracoLessPlugin,
 			options: {
 				lessLoaderOptions: {
-					modifyVars: {
-                        "@layout-header-background": "#cccccc",
-                        "@menu-bg": "#cccccc",
-                        "@primary-color": "#F10203"
-					},
-					javascriptEnabled: true,
+					lessOptions: {
+						modifyVars: {
+							"@layout-header-background": "#cccccc",
+							"@menu-bg": "#cccccc",
+							"@primary-color": "#F10203"
+						},
+						javascriptEnabled: true,
+					}
 				},
 			},
 		},
