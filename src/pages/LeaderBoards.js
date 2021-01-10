@@ -159,9 +159,7 @@ class LeaderBoards extends React.Component {
 		new RestApi("/poker/stats/?competition=" + competitionId).retrieve({
 			onRes: (res) => {
 				if (res.status !== 200) {
-					return Promise.reject(
-						new Error("Unable to retrieve stats list.")
-					);
+					return Promise.reject(new Error("Unable to retrieve stats list."));
 				}
 				return res;
 			},
@@ -238,13 +236,30 @@ class LeaderBoards extends React.Component {
 			if (this.state.competitions.length > 1) {
 				let optionList = [];
 				this.state.competitions.forEach((comp) => {
-					optionList.push(<Option value={comp.id}>{comp.name}</Option>);
+					optionList.push(
+						<Option key={comp.id} value={comp.id}>
+							{comp.name}
+						</Option>
+					);
 				});
-				select = <Select defaultValue={this.state.activeCompetition.id} style={{ width: "100%" }} onChange={this.changeCompetition}>{optionList}</Select>;
+				select = (
+					<Select
+						key="compSelect"
+						defaultValue={this.state.activeCompetition.id}
+						style={{ width: "100%" }}
+						onChange={this.changeCompetition}
+					>
+						{optionList}
+					</Select>
+				);
 			}
 
 			return (
-				<PageSurround pageBreadcrumb={pageBreadcrumb} pageTitle={title} extra={select}>
+				<PageSurround
+					pageBreadcrumb={pageBreadcrumb}
+					pageTitle={title}
+					extra={select}
+				>
 					<Menu
 						selectedKeys={[this.state.activeBoard]}
 						onClick={this.changeBoard}

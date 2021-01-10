@@ -77,7 +77,9 @@ class GameDetail extends React.Component {
 				new RestApi("/poker/competitions/").retrieve({
 					onRes: (res) => {
 						if (res.status !== 200) {
-							return Promise.reject(new Error("Unable to retrieve competition list."));
+							return Promise.reject(
+								new Error("Unable to retrieve competition list.")
+							);
 						}
 						return res;
 					},
@@ -346,7 +348,10 @@ class GameDetail extends React.Component {
 				>
 					<Row gutter={16}>
 						<Col sm={24} md={12}>
-							<GameInfo data={this.state.gameData} competitions={this.state.competitions} />
+							<GameInfo
+								data={this.state.gameData}
+								competitions={this.state.competitions}
+							/>
 						</Col>
 						<Col sm={24} md={12}>
 							<GamePlayerInfo
@@ -414,7 +419,10 @@ class GameInfo extends React.Component {
 					)}
 				</Descriptions.Item>
 				<Descriptions.Item label="Competitions">
-					<CompetitionList competitions={this.props.competitions} competitionParticipants={this.props.data.competitions} />
+					<CompetitionList
+						competitions={this.props.competitions}
+						competitionParticipants={this.props.data.competitions}
+					/>
 				</Descriptions.Item>
 			</Descriptions>
 		);

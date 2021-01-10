@@ -10,10 +10,13 @@ import {
 	Statistic,
 	Button,
 	Space,
+	Select,
 } from "antd";
 import { FundViewOutlined } from "@ant-design/icons";
 import RestApi from "../utils/RestApi";
 import { Award } from "./";
+
+const { Option } = Select;
 
 class GameStatistics extends React.Component {
 	constructor(props) {
@@ -23,12 +26,83 @@ class GameStatistics extends React.Component {
 			isLoaded: false,
 			empty: false,
 			stats: {},
+			competitions: [],
+			activeCompetition: null,
 		};
+		this.changeCompetition = this.changeCompetition.bind(this);
 	}
 
 	componentDidMount() {
+		new RestApi("/poker/competitions/").retrieve({
+			onRes: (res) => {
+				if (res.status !== 200) {
+					return Promise.reject(
+						new Error("Unable to retrieve competition list.")
+					);
+				}
+				return res;
+			},
+			onParse: (compRes) => {
+				let activeComp = compRes.sort((a, b) => a.order - b.order)[0];
+				new RestApi(
+					"/poker/stats/?player_ref=" +
+						this.props.profileData.id +
+						"&competition=" +
+						activeComp.id
+				).retrieve({
+					onRes: (res) => {
+						if (res.status !== 200) {
+							return Promise.reject(
+								new Error("Unable to retrieve stats list.")
+							);
+						}
+						return res;
+					},
+					onParse: (result) => {
+						if (result.length > 0) {
+							this.setState({
+								isLoaded: true,
+								stats: result[0],
+								competitions: compRes,
+								activeCompetition: activeComp,
+							});
+						} else {
+							this.setState({
+								isLoaded: true,
+								empty: true,
+								competitions: compRes,
+								activeCompetition: activeComp,
+							});
+						}
+					},
+					onError: (error) => {
+						this.setState({
+							isLoaded: true,
+							error,
+						});
+					},
+				});
+			},
+			onError: (error) => {
+				this.setState({
+					compLoaded: true,
+					error,
+				});
+			},
+		});
+	}
+
+	changeCompetition(competitionId) {
+		let comp = this.state.competitions.filter((a) => a.id === competitionId)[0];
+		this.setState({
+			isLoaded: false,
+			activeCompetition: comp,
+		});
 		new RestApi(
-			"/poker/stats/?player_ref=" + this.props.profileData.id
+			"/poker/stats/?player_ref=" +
+				this.props.profileData.id +
+				"&competition=" +
+				competitionId
 		).retrieve({
 			onRes: (res) => {
 				if (res.status !== 200) {
@@ -41,15 +115,18 @@ class GameStatistics extends React.Component {
 					this.setState({
 						isLoaded: true,
 						stats: result[0],
+						empty: false,
 					});
 				} else {
 					this.setState({
 						isLoaded: true,
+						stats: null,
 						empty: true,
 					});
 				}
 			},
 			onError: (error) => {
+				console.error(error);
 				this.setState({
 					isLoaded: true,
 					error,
@@ -74,10 +151,33 @@ class GameStatistics extends React.Component {
 						);
 					});
 			}
+
+			let select = "";
+			if (this.state.competitions.length > 1) {
+				let optionList = [];
+				this.state.competitions.forEach((comp) => {
+					optionList.push(
+						<Option key={comp.id} value={comp.id}>
+							{comp.name}
+						</Option>
+					);
+				});
+				select = (
+					<Select
+						key="compSelect"
+						defaultValue={this.state.activeCompetition.id}
+						onChange={this.changeCompetition}
+					>
+						{optionList}
+					</Select>
+				);
+			}
+
 			return (
 				<Card
 					title="Game Statistics"
 					extra={[
+						select,
 						<Link key="leaderboard" to="/leaderboards">
 							<Button icon={<FundViewOutlined />}>View Leaderboards</Button>
 						</Link>,
