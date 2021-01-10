@@ -7,7 +7,7 @@ class CompetitionList extends React.Component {
 		this.props.competitionParticipants.forEach((part) => {
 			this.props.competitions.forEach((comp) => {
 				if (comp.id === part.competition) {
-					compList.push(<Tag>{comp.name}</Tag>);
+					compList.push(<Tag key={comp.id}>{comp.name}</Tag>);
 				}
 			});
 		});

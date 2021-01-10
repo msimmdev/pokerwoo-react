@@ -20,6 +20,7 @@ class Games extends React.Component {
 		this.state = {
 			error: null,
 			isLoaded: false,
+			compLoaded: false,
 			games: [],
 			competitions: [],
 		};
@@ -34,31 +35,35 @@ class Games extends React.Component {
 				return res;
 			},
 			onParse: (gameRes) => {
-				new RestApi("/poker/competitions/").retrieve({
-					onRes: (res) => {
-						if (res.status !== 200) {
-							return Promise.reject(new Error("Unable to retrieve game list."));
-						}
-						return res;
-					},
-					onParse: (compRes) => {
-						this.setState({
-							isLoaded: true,
-							competitions: compRes,
-							games: gameRes.reverse(),
-						});
-					},
-					onError: (error) => {
-						this.setState({
-							isLoaded: true,
-							error,
-						});
-					},
+				this.setState({
+					isLoaded: true,
+					games: gameRes.reverse(),
 				});
 			},
 			onError: (error) => {
 				this.setState({
 					isLoaded: true,
+					error,
+				});
+			},
+		});
+
+		new RestApi("/poker/competitions/").retrieve({
+			onRes: (res) => {
+				if (res.status !== 200) {
+					return Promise.reject(new Error("Unable to retrieve competition list."));
+				}
+				return res;
+			},
+			onParse: (compRes) => {
+				this.setState({
+					compLoaded: true,
+					competitions: compRes,
+				});
+			},
+			onError: (error) => {
+				this.setState({
+					compLoaded: true,
 					error,
 				});
 			},
@@ -78,7 +83,7 @@ class Games extends React.Component {
 	}
 
 	render() {
-		const { error, isLoaded, games } = this.state;
+		const { error, isLoaded, compLoaded, games } = this.state;
 		const pageBreadcrumb = ["Games"];
 		const title = "Games";
 		const cols = [
@@ -203,7 +208,7 @@ class Games extends React.Component {
 					]}
 				>
 					<DataTable
-						loading={!isLoaded}
+						loading={!isLoaded || !compLoaded}
 						dataSource={games}
 						columns={cols}
 						rowKey="id"

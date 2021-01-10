@@ -7,6 +7,7 @@ import {
 	DeleteButton,
 	TableList,
 	PlayerList,
+	CompetitionList,
 } from "../../components";
 import RestApi from "../../utils/RestApi";
 import {
@@ -33,7 +34,9 @@ class GameDetail extends React.Component {
 
 		this.state = {
 			isLoaded: false,
+			compLoaded: false,
 			tables: [],
+			competitions: [],
 			tablesLoaded: false,
 		};
 	}
@@ -68,6 +71,27 @@ class GameDetail extends React.Component {
 					},
 					onError: (error) => {
 						throw error;
+					},
+				});
+
+				new RestApi("/poker/competitions/").retrieve({
+					onRes: (res) => {
+						if (res.status !== 200) {
+							return Promise.reject(new Error("Unable to retrieve competition list."));
+						}
+						return res;
+					},
+					onParse: (compRes) => {
+						this.setState({
+							compLoaded: true,
+							competitions: compRes,
+						});
+					},
+					onError: (error) => {
+						this.setState({
+							compLoaded: true,
+							error,
+						});
 					},
 				});
 
@@ -261,7 +285,7 @@ class GameDetail extends React.Component {
 	render() {
 		let pageBreadcrumb = [{ name: "Games", link: "/games" }, "Game Detail"];
 		let title = "Game Detail";
-		if (!this.state.isLoaded) {
+		if (!this.state.isLoaded || !this.state.compLoaded) {
 			return (
 				<Spin>
 					<PageSurround
@@ -322,7 +346,7 @@ class GameDetail extends React.Component {
 				>
 					<Row gutter={16}>
 						<Col sm={24} md={12}>
-							<GameInfo data={this.state.gameData} />
+							<GameInfo data={this.state.gameData} competitions={this.state.competitions} />
 						</Col>
 						<Col sm={24} md={12}>
 							<GamePlayerInfo
@@ -388,6 +412,9 @@ class GameInfo extends React.Component {
 					) : (
 						<Tag color="warning">Incomplete</Tag>
 					)}
+				</Descriptions.Item>
+				<Descriptions.Item label="Competitions">
+					<CompetitionList competitions={this.props.competitions} competitionParticipants={this.props.data.competitions} />
 				</Descriptions.Item>
 			</Descriptions>
 		);
