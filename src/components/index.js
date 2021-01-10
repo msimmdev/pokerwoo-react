@@ -9,6 +9,7 @@ import TableList from "./TableList";
 import ScheduleForm from "./ScheduleForm";
 import GameStatistics from "./GameStatistics";
 import Award from "./Award";
+import CompetitionList from "./CompetitionList";
 
 export {
 	DataTable,
@@ -22,4 +23,5 @@ export {
 	ScheduleForm,
 	GameStatistics,
 	Award,
+	CompetitionList,
 };

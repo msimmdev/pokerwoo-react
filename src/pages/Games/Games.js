@@ -2,10 +2,13 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { InfoCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { Alert, Space, Button, Popover, Tag, Spin, message } from "antd";
-import PageSurround from "../../components/PageSurround";
-import DataTable from "../../components/DataTable";
-import DeleteButton from "../../components/DeleteButton";
-import PlayerName from "../../components/PlayerName";
+import {
+	PageSurround,
+	DataTable,
+	DeleteButton,
+	PlayerName,
+	CompetitionList,
+} from "../../components";
 import RestApi from "../../utils/RestApi";
 import CurrencyFormat from "react-currency-format";
 import Moment from "react-moment";
@@ -18,6 +21,7 @@ class Games extends React.Component {
 			error: null,
 			isLoaded: false,
 			games: [],
+			competitions: [],
 		};
 	}
 
@@ -29,10 +33,27 @@ class Games extends React.Component {
 				}
 				return res;
 			},
-			onParse: (result) => {
-				this.setState({
-					isLoaded: true,
-					games: result.reverse(),
+			onParse: (gameRes) => {
+				new RestApi("/poker/competitions/").retrieve({
+					onRes: (res) => {
+						if (res.status !== 200) {
+							return Promise.reject(new Error("Unable to retrieve game list."));
+						}
+						return res;
+					},
+					onParse: (compRes) => {
+						this.setState({
+							isLoaded: true,
+							competitions: compRes,
+							games: gameRes.reverse(),
+						});
+					},
+					onError: (error) => {
+						this.setState({
+							isLoaded: true,
+							error,
+						});
+					},
 				});
 			},
 			onError: (error) => {
@@ -130,6 +151,20 @@ class Games extends React.Component {
 					),
 			},
 			{
+				title: "Competitions",
+				align: "center",
+				responsive: ["md"],
+				render: (record) =>
+					record.competitions.length > 0 ? (
+						<CompetitionList
+							competitionParticipants={record.competitions}
+							competitions={this.state.competitions}
+						/>
+					) : (
+						""
+					),
+			},
+			{
 				key: "edit",
 				align: "center",
 				render: (record) => (
@@ -161,7 +196,9 @@ class Games extends React.Component {
 					pageTitle={title}
 					extra={[
 						<Link to="/games/add" key="addlink">
-							<Button type="primary" icon={<PlusOutlined />}>Create Game</Button>
+							<Button type="primary" icon={<PlusOutlined />}>
+								Create Game
+							</Button>
 						</Link>,
 					]}
 				>
