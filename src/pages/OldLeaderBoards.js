@@ -5,12 +5,10 @@ import RestApi from "../utils/RestApi";
 import { DataTable, PageSurround, PlayerName } from "../components";
 
 const { Option } = Select;
-const { SubMenu } = Menu;
 
 const titles = {
 	games_played: "Games Played",
-	score: "Old Score",
-	new_score: "Score",
+	score: "Score",
 	games_won: "Games Won",
 	times_placed: "Times Placed",
 	win_rate: "Win Rate",
@@ -21,7 +19,7 @@ const titles = {
 	average_placing: "Avg Placing",
 };
 
-class LeaderBoards extends React.Component {
+class OldLeaderBoards extends React.Component {
 	constructor(props) {
 		super(props);
 		this.createBoardData = this.createBoardData.bind(this);
@@ -30,7 +28,7 @@ class LeaderBoards extends React.Component {
 		this.state = {
 			error: null,
 			isLoaded: false,
-			activeBoard: "new_score",
+			activeBoard: "score",
 			stats: [],
 			players: [],
 			leaderData: [],
@@ -115,11 +113,7 @@ class LeaderBoards extends React.Component {
 
 	createBoardData(stats, players, board) {
 		let boardData = [];
-		if (board === 'average_placing') {
-			stats.sort((a, b) => a[board] - b[board]);
-		} else {
-			stats.sort((a, b) => b[board] - a[board]);
-		}
+		stats.sort((a, b) => b[board] - a[board]);
 		let i = 1;
 
 		stats.forEach((item) => {
@@ -271,20 +265,16 @@ class LeaderBoards extends React.Component {
 						onClick={this.changeBoard}
 						mode="horizontal"
 					>
-						<Menu.Item key="new_score">Score</Menu.Item>
+						<Menu.Item key="score">Score</Menu.Item>
+						<Menu.Item key="games_played">Games Played</Menu.Item>
+						<Menu.Item key="games_won">Games Won</Menu.Item>
+						<Menu.Item key="times_placed">Times Placed</Menu.Item>
 						<Menu.Item key="win_rate">Win Rate</Menu.Item>
 						<Menu.Item key="place_rate">Place Rate</Menu.Item>
-						<Menu.Item key="games_played">Games Played</Menu.Item>
-						<SubMenu key="Winnings" title="Winnings">
-							<Menu.Item key="net_winnings">Net Winnings</Menu.Item>
-							<Menu.Item key="gain_per_game">Gain per Game</Menu.Item>
-						</SubMenu>
-						<SubMenu key="Other" title="Other">
-							<Menu.Item key="games_won">Games Won</Menu.Item>
-							<Menu.Item key="times_placed">Times Placed</Menu.Item>
-							<Menu.Item key="average_placing">Avg Placing</Menu.Item>
-							<Menu.Item key="score">Old Score</Menu.Item>
-						</SubMenu>
+						<Menu.Item key="net_winnings">Net Winnings</Menu.Item>
+						<Menu.Item key="gain_per_game">Gain per Game</Menu.Item>
+						<Menu.Item key="average_rating">Avg Rating</Menu.Item>
+						<Menu.Item key="average_placing">Avg Placing</Menu.Item>
 					</Menu>
 					<DataTable
 						loading={!this.state.isLoaded}
@@ -300,4 +290,4 @@ class LeaderBoards extends React.Component {
 	}
 }
 
-export default LeaderBoards;
+export default OldLeaderBoards;

@@ -2,6 +2,7 @@ import Players from "./Players/Players";
 import Games from "./Games/Games";
 import Dashboard from "./Dashboard";
 import LeaderBoards from "./LeaderBoards";
+import OldLeaderBoards from "./OldLeaderBoards";
 import AddPlayer from "./Players/AddPlayer";
 import EditPlayer from "./Players/EditPlayer";
 import Profile from "./Players/Profile";
@@ -34,4 +35,5 @@ export {
 	EditSchedule,
 	EditProfile,
 	LeaderBoards,
+	OldLeaderBoards,
 };
