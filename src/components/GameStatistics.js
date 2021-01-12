@@ -43,7 +43,9 @@ class GameStatistics extends React.Component {
 				return res;
 			},
 			onParse: (compRes) => {
-				let activeComp = compRes.sort((a, b) => a.order - b.order)[0];
+				let activeComp = comps
+					.filter((a) => a.active)
+					.sort((a, b) => a.order - b.order)[0];
 				new RestApi(
 					"/poker/stats/?player_ref=" +
 						this.props.profileData.id +
