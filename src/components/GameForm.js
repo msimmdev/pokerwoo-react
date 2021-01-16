@@ -49,7 +49,7 @@ class GameForm extends React.Component {
 			},
 		});
 
-		new RestApi("/poker/competitions/?active=true").retrieve({
+		new RestApi("/poker/competitions/").retrieve({
 			onRes: (res) => {
 				if (res.status !== 200) {
 					return Promise.reject(
@@ -98,8 +98,9 @@ class GameForm extends React.Component {
 									place_two_multiplier_custom: 3,
 									place_three_multiplier_custom: 3,
 									competition: [
-										this.state.competitions.sort((a, b) => a.order - b.order)[0]
-											.id,
+										this.state.competitions
+											.filter((comp) => comp.active)
+											.sort((a, b) => a.order - b.order)[0].id,
 									],
 							  }
 					}

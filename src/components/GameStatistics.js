@@ -43,7 +43,7 @@ class GameStatistics extends React.Component {
 				return res;
 			},
 			onParse: (compRes) => {
-				let activeComp = comps
+				let activeComp = compRes
 					.filter((a) => a.active)
 					.sort((a, b) => a.order - b.order)[0];
 				new RestApi(
@@ -196,7 +196,7 @@ class GameStatistics extends React.Component {
 								/>
 							</Col>
 							<Col span={12}>
-								<Statistic title="Score" value={this.state.stats.score} />
+								<Statistic title="Score" value={this.state.stats.new_score} />
 							</Col>
 							<Col span={12}>
 								<Statistic
